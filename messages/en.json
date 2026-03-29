@@ -1,0 +1,22 @@
+{
+  "Index": {
+    "title": "Your doctor is nearby, just in one word of Darija",
+    "description": "Smart medical assistant that connects you with the best doctors in seconds via WhatsApp.",
+    "cta": "Start Chatting Now"
+  },
+  "Navbar": {
+    "home": "Home",
+    "features": "Features",
+    "join": "For Doctors",
+    "language": "Language"
+  },
+  "Features": {
+    "darija": "Darija Understanding",
+    "gps": "GPS Search",
+    "booking": "Appointment Management"
+  },
+  "Stats": {
+    "cities": "+50 Cities",
+    "doctors": "+200 Doctors"
+  }
+}

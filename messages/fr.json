@@ -1,0 +1,22 @@
+{
+  "Index": {
+    "title": "Votre médecin est à portée de main, en un mot en Darija",
+    "description": "Un assistant médical intelligent qui vous connecte aux meilleurs médecins en quelques secondes via WhatsApp.",
+    "cta": "Essayer sur WhatsApp"
+  },
+  "Navbar": {
+    "home": "Accueil",
+    "features": "Fonctionnalités",
+    "join": "Pour les Médecins",
+    "language": "Langue"
+  },
+  "Features": {
+    "darija": "Compréhension de la Darija",
+    "gps": "Recherche par GPS",
+    "booking": "Gestion des RDV"
+  },
+  "Stats": {
+    "cities": "+50 Villes",
+    "doctors": "+200 Médecins"
+  }
+}
