@@ -1,22 +1,24 @@
 {
-  "Index": {
-    "title": "Votre médecin est à portée de main, en un mot en Darija",
-    "description": "Un assistant médical intelligent qui vous connecte aux meilleurs médecins en quelques secondes via WhatsApp.",
-    "cta": "Essayer sur WhatsApp"
-  },
   "Navbar": {
     "home": "Accueil",
     "features": "Fonctionnalités",
-    "join": "Pour les Médecins",
-    "language": "Langue"
+    "join": "Pour les Médecins"
+  },
+  "Hero": {
+    "title": "Augmentez vos patients sans budget publicitaire",
+    "subtitle": "La 1ère plateforme IA au Maroc qui vous connecte directement aux patients de votre ville.",
+    "cta": "Rejoindre gratuitement",
+    "trust": "🔒 Rejoignez +20 médecins inscrits cette semaine"
   },
   "Features": {
-    "darija": "Compréhension de la Darija",
-    "gps": "Recherche par GPS",
-    "booking": "Gestion des RDV"
+    "patients_title": "📈 Plus de patients",
+    "patients_desc": "Recevez des demandes de nouveaux patients sans effort supplémentaire.",
+    "local_title": "📍 Visibilité Locale",
+    "local_desc": "Soyez le premier choix quand un patient cherche dans votre ville.",
+    "ai_title": "🤖 IA Intelligente",
+    "ai_desc": "Notre système suggère votre cabinet aux patients les plus pertinents."
   },
-  "Stats": {
-    "cities": "+50 Villes",
-    "doctors": "+200 Médecins"
+  "Footer": {
+    "rights": "Tous droits réservés. Fait au Maroc 🇲🇦"
   }
 }

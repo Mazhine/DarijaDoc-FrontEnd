@@ -1,22 +1,24 @@
 {
-  "Index": {
-    "title": "Your doctor is nearby, just in one word of Darija",
-    "description": "Smart medical assistant that connects you with the best doctors in seconds via WhatsApp.",
-    "cta": "Start Chatting Now"
-  },
   "Navbar": {
     "home": "Home",
     "features": "Features",
-    "join": "For Doctors",
-    "language": "Language"
+    "join": "For Doctors"
+  },
+  "Hero": {
+    "title": "Grow your patient base without ad spend",
+    "subtitle": "The 1st AI platform in Morocco connecting you directly with patients in your city.",
+    "cta": "Join for Free",
+    "trust": "🔒 Join +20 doctors who signed up this week"
   },
   "Features": {
-    "darija": "Darija Understanding",
-    "gps": "GPS Search",
-    "booking": "Appointment Management"
+    "patients_title": "📈 More Patients",
+    "patients_desc": "Receive requests from new patients with zero extra effort.",
+    "local_title": "📍 Local Visibility",
+    "local_desc": "Be the top choice when patients search in your specific area.",
+    "ai_title": "🤖 Smart AI",
+    "ai_desc": "Our system matches your clinic with the right patients automatically."
   },
-  "Stats": {
-    "cities": "+50 Cities",
-    "doctors": "+200 Doctors"
+  "Footer": {
+    "rights": "All rights reserved. Made in Morocco 🇲🇦"
   }
 }
