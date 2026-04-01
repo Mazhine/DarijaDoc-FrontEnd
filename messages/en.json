@@ -2,7 +2,8 @@
   "Navbar": {
     "home": "Home",
     "features": "Features",
-    "join": "For Doctors"
+    "join": "For Doctors",
+    "joinButton": "Join for Free"
   },
   "Hero": {
     "title": "Grow your patient base without ad spend",
@@ -17,6 +18,19 @@
     "local_desc": "Be the top choice when patients search in your specific area.",
     "ai_title": "🤖 Smart AI",
     "ai_desc": "Our system matches your clinic with the right patients automatically."
+  },
+  "Join": {
+    "title": "Join as a Medical Professional",
+    "subtitle": "Sign up to increase your visibility and reach more patients.",
+    "name": "Full Name",
+    "speciality": "Specialty",
+    "city": "City",
+    "maps": "Google Maps Link (Clinic)",
+    "submit": "Submit Application",
+    "benefits_title": "Why Join Us?",
+    "b1": "More patients every month",
+    "b2": "Smart appointment management",
+    "b3": "Targeted local visibility"
   },
   "Footer": {
     "rights": "All rights reserved. Made in Morocco 🇲🇦"

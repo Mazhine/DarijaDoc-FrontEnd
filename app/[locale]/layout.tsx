@@ -1,6 +1,7 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import Navbar from './components/Navbar';
 import "./../globals.css";
 
 export default async function LocaleLayout({
@@ -8,12 +9,11 @@ export default async function LocaleLayout({
   params
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale: string }>; // رجعناها Promise هنا
+  params: Promise<{ locale: string }>;
 }) {
-  // هاد السطر هو الحل: كنساينو الـ params حتى توجد
   const { locale } = await params;
 
-  // تأكد أن اللغة مدعومة
+  // تأكد من اللغات المدعومة
   if (!['ar', 'en', 'fr'].includes(locale)) {
     notFound();
   }
@@ -22,10 +22,16 @@ export default async function LocaleLayout({
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (
-    <html lang={locale} dir={direction}>
-      <body>
-        <NextIntlClientProvider messages={messages}>
-          {children}
+    <html lang={locale} dir={direction} className="scroll-smooth">
+      <body className="antialiased bg-white text-slate-900 font-sans">
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          <Navbar />
+          {/* زدنا pt-24 باش Content ما يجيش مخبي تحت الـ Fixed Navbar */}
+          <main className="pt-24 min-h-screen">
+            {children}
+          </main>
+          
+          {/* تقدر تزيد Footer هنا لتحت */}
         </NextIntlClientProvider>
       </body>
     </html>

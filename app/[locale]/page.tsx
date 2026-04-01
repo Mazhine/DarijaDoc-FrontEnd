@@ -1,91 +1,127 @@
+'use client';
+
 import { useTranslations } from 'next-intl';
-import LanguageSwitcher from './components/LanguageSwitcher'; 
+import { Link } from '@/i18n/routing';
 
-export default function HomePage({ params }: { params: { locale: string } }) {
-  const tNav = useTranslations('Navbar');
-  const tHero = useTranslations('Hero');
-  const tFeat = useTranslations('Features');
-  const tFooter = useTranslations('Footer');
-
-  const isRTL = params.locale === 'ar';
+export default function HomePage() {
+  const t = useTranslations();
 
   return (
-    <div className={`min-h-screen bg-white font-sans ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-white text-slate-900" dir="rtl">
       
-      {/* 🚀 Urgency Banner */}
-      <div className="bg-blue-600 text-white text-center py-2 text-xs md:text-sm font-bold animate-pulse">
-        {tHero('trust')}
-      </div>
-
-      {/* --- Navigation --- */}
-      <header className="flex justify-between items-center px-6 py-5 border-b bg-white/90 backdrop-blur-md sticky top-0 z-50">
-        <div className="text-2xl font-black text-blue-600 tracking-tighter shrink-0">
-          DarijaDoc<span className="text-slate-300">AI</span>
-        </div>
-        
-        <nav className="hidden md:flex gap-8 font-bold text-slate-600 uppercase text-xs tracking-widest">
-          <a href="#" className="hover:text-blue-600 transition">{tNav('home')}</a>
-          <a href="#features" className="hover:text-blue-600 transition">{tNav('features')}</a>
-          <a href="/join" className="hover:text-blue-600 transition text-blue-500 underline">{tNav('join')}</a>
-        </nav>
-
-        <div className="flex items-center gap-4">
-           <LanguageSwitcher />
-           <button className="hidden sm:block bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold text-sm transition-all">
-             {tHero('cta')}
-           </button>
-        </div>
-      </header>
-
-      {/* --- Hero Section --- */}
-      <section className="py-20 px-6 text-center bg-gradient-to-b from-blue-50 to-white overflow-hidden">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl md:text-7xl font-black text-slate-900 mb-8 leading-[1.15]">
-            {tHero('title')}
+      {/* 1. Introduction: تريف بالمنصة */}
+      <section className="relative pt-24 pb-20 px-6 bg-gradient-to-b from-blue-50 to-white overflow-hidden">
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-bold mb-8 animate-bounce">
+            <span>{t('Hero.trust')}</span>
+          </div>
+          <h1 className="text-5xl md:text-7xl font-black mb-8 leading-[1.1] tracking-tight text-slate-900">
+            {t('Hero.title')}
           </h1>
-          <p className="text-lg md:text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-            {tHero('subtitle')}
+          <p className="text-xl md:text-2xl text-slate-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+            {t('Hero.subtitle')}
           </p>
+          <div className="flex flex-wrap justify-center gap-6">
+            <Link 
+              href="/join" 
+              className="bg-blue-600 text-white px-10 py-5 rounded-full font-black text-xl hover:bg-blue-700 transition-all shadow-2xl hover:scale-105 active:scale-95"
+            >
+              {t('Hero.cta')}
+            </Link>
+          </div>
+        </div>
+        {/* Background Decoration */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
+      </section>
 
-          <div className="flex flex-col items-center gap-4">
-            <button className="bg-green-600 hover:bg-green-700 text-white text-xl md:text-2xl font-black py-6 px-14 rounded-[2rem] shadow-2xl transition-transform hover:scale-105 active:scale-95">
-              🚀 {tHero('cta')}
-            </button>
+      {/* 2. الامتيازات: شنو كنقدمو */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-12">
+            <div className="group p-10 rounded-[2.5rem] bg-slate-50 border border-slate-100 hover:bg-blue-50 hover:border-blue-200 transition-all duration-300">
+              <div className="text-5xl mb-6 group-hover:scale-110 transition-transform">📈</div>
+              <h3 className="text-2xl font-black mb-4 text-slate-800">{t('Features.patients_title')}</h3>
+              <p className="text-slate-600 text-lg leading-relaxed">{t('Features.patients_desc')}</p>
+            </div>
+            <div className="group p-10 rounded-[2.5rem] bg-slate-50 border border-slate-100 hover:bg-blue-50 hover:border-blue-200 transition-all duration-300 text-center scale-105 shadow-xl z-10 bg-white">
+              <div className="text-5xl mb-6 group-hover:scale-110 transition-transform">📍</div>
+              <h3 className="text-2xl font-black mb-4 text-slate-800">{t('Features.local_title')}</h3>
+              <p className="text-slate-600 text-lg leading-relaxed">{t('Features.local_desc')}</p>
+            </div>
+            <div className="group p-10 rounded-[2.5rem] bg-slate-50 border border-slate-100 hover:bg-blue-50 hover:border-blue-200 transition-all duration-300 text-left">
+              <div className="text-5xl mb-6 group-hover:scale-110 transition-transform text-right">🤖</div>
+              <h3 className="text-2xl font-black mb-4 text-slate-800 text-right">{t('Features.ai_title')}</h3>
+              <p className="text-slate-600 text-lg leading-relaxed text-right">{t('Features.ai_desc')}</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* --- Features Section --- */}
-      <section id="features" className="py-24 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {/* Feature 1 */}
-          <div className="p-10 bg-slate-50 rounded-[2.5rem] border border-transparent hover:border-blue-100 transition-all">
-            <div className="text-5xl mb-6">📈</div>
-            <h3 className="text-2xl font-black mb-4 text-slate-800">{tFeat('patients_title')}</h3>
-            <p className="text-slate-500 leading-relaxed">{tFeat('patients_desc')}</p>
+      {/* 3. الإحصائيات: الثقة بالأرقام */}
+      <section className="py-20 bg-slate-900 text-white relative">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+          <div className="space-y-2">
+            <div className="text-5xl font-black text-blue-400">+200</div>
+            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">طبيب شريك</div>
           </div>
-
-          {/* Feature 2 */}
-          <div className="p-10 bg-slate-50 rounded-[2.5rem] border border-transparent hover:border-blue-100 transition-all">
-            <div className="text-5xl mb-6">📍</div>
-            <h3 className="text-2xl font-black mb-4 text-slate-800">{tFeat('local_title')}</h3>
-            <p className="text-slate-500 leading-relaxed">{tFeat('local_desc')}</p>
+          <div className="space-y-2">
+            <div className="text-5xl font-black text-blue-400">+5k</div>
+            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">بحث شهري</div>
           </div>
-
-          {/* Feature 3 */}
-          <div className="p-10 bg-slate-50 rounded-[2.5rem] border border-transparent hover:border-blue-100 transition-all">
-            <div className="text-5xl mb-6">🤖</div>
-            <h3 className="text-2xl font-black mb-4 text-slate-800">{tFeat('ai_title')}</h3>
-            <p className="text-slate-500 leading-relaxed">{tFeat('ai_desc')}</p>
+          <div className="space-y-2">
+            <div className="text-5xl font-black text-blue-400">100%</div>
+            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">مغربي 🇲🇦</div>
+          </div>
+          <div className="space-y-2">
+            <div className="text-5xl font-black text-blue-400">24/7</div>
+            <div className="text-slate-400 font-bold uppercase tracking-widest text-xs">دعم فني</div>
           </div>
         </div>
       </section>
 
-      {/* --- Footer --- */}
-      <footer className="py-16 border-t bg-slate-50 text-center">
-        <div className="text-xl font-black text-blue-600 mb-4">DarijaDoc AI</div>
-        <p className="text-slate-400 text-sm">© 2026 DarijaDoc AI. {tFooter('rights')}</p>
-      </footer>
+      {/* 4. بلاصة الفيديو */}
+      <section className="py-24 px-6 bg-slate-50">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-3xl md:text-5xl font-black mb-12 text-slate-900">شوف كيفاش كنسهلو المأمورية</h2>
+          <div className="relative group cursor-pointer aspect-video rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-white">
+            <div className="absolute inset-0 bg-blue-900/20 group-hover:bg-blue-900/10 transition-all z-10"></div>
+            <div className="absolute inset-0 flex items-center justify-center z-20">
+              <div className="w-24 h-24 bg-white/90 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                <div className="w-0 h-0 border-t-[15px] border-t-transparent border-l-[25px] border-l-blue-600 border-b-[15px] border-b-transparent translate-x-1"></div>
+              </div>
+            </div>
+            <img 
+              src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=2070" 
+              alt="Medical AI" 
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* 5. زر التسجيل النهائي */}
+      <section className="py-32 px-6">
+        <div className="max-w-4xl mx-auto bg-blue-600 rounded-[4rem] p-16 text-center text-white shadow-2xl relative overflow-hidden">
+          <div className="relative z-10">
+            <h2 className="text-4xl md:text-5xl font-black mb-8 leading-tight">واجد تولي طبيب عصري؟</h2>
+            <p className="text-xl text-blue-100 mb-12 max-w-xl mx-auto italic">
+              "انضم لأكبر شبكة ديال الأطباء فالمغرب اللي كيستعملو الذكاء الاصطناعي."
+            </p>
+            <Link 
+              href="/join" 
+              className="bg-white text-blue-600 px-12 py-5 rounded-full font-black text-2xl hover:bg-slate-100 transition-all shadow-xl inline-block"
+            >
+              {t('Navbar.joinButton')}
+            </Link>
+          </div>
+          {/* Decorative Circles */}
+          <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-500 rounded-full opacity-50"></div>
+          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-700 rounded-full opacity-50"></div>
+        </div>
+      </section>
+
     </div>
+
+    
   );
 }

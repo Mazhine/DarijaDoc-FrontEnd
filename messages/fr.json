@@ -2,7 +2,8 @@
   "Navbar": {
     "home": "Accueil",
     "features": "Fonctionnalités",
-    "join": "Pour les Médecins"
+    "join": "Pour les Médecins",
+    "joinButton": "Rejoindre gratuitement"
   },
   "Hero": {
     "title": "Augmentez vos patients sans budget publicitaire",
@@ -17,6 +18,19 @@
     "local_desc": "Soyez le premier choix quand un patient cherche dans votre ville.",
     "ai_title": "🤖 IA Intelligente",
     "ai_desc": "Notre système suggère votre cabinet aux patients les plus pertinents."
+  },
+  "Join": {
+    "title": "Rejoindre en tant que médecin",
+    "subtitle": "Inscrivez-vous pour augmenter votre visibilité et recevoir plus de patients.",
+    "name": "Nom complet",
+    "speciality": "Spécialité",
+    "city": "Ville",
+    "maps": "Lien Google Maps (Cabinet)",
+    "submit": "Envoyer ma demande",
+    "benefits_title": "Pourquoi nous rejoindre ?",
+    "b1": "Plus de patients chaque mois",
+    "b2": "Gestion intelligente des rendez-vous",
+    "b3": "Visibilité locale ciblée"
   },
   "Footer": {
     "rights": "Tous droits réservés. Fait au Maroc 🇲🇦"
