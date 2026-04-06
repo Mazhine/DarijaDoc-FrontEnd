@@ -1,0 +1,44 @@
+{
+  "Navbar": {
+    "joinButton": "Join as a Doctor"
+  },
+  "Hero": {
+    "trust": "Trusted by +100 Clinics",
+    "title": "Modernize Your Clinic",
+    "subtitle": "The first AI-driven platform for Moroccan doctors.",
+    "cta": "Get Started Now"
+  },
+  "HomePage": {
+    "Problems": {
+      "mainTitle": "Why choose DarijaDoc?",
+      "p1Title": "Smart Scheduling",
+      "p1Desc": "Automate your appointments easily.",
+      "p2Title": "Lower Costs",
+      "p2Desc": "Reduce administrative overhead.",
+      "p3Title": "Zero Stress",
+      "p3Desc": "Focus on your patients, let us handle the rest."
+    },
+    "Stats": {
+      "appointments": "Increase in appointments",
+      "calls": "Automated calls",
+      "satisfaction": "Patient satisfaction",
+      "time": "Hours saved/week"
+    },
+    "SuccessStory": {
+      "title": "Success Stories from Our Doctors",
+      "quote": "DarijaDoc transformed how I manage my dental clinic in Casablanca.",
+      "doctorName": "Dr. Amine Alami",
+      "specialty": "Dentist - Casablanca"
+    },
+    "Footer": {
+      "description": "The future of healthcare management in Morocco.",
+      "platform": "Platform",
+      "home": "Home",
+      "doctors": "For Doctors",
+      "faq": "FAQ",
+      "specialties": "Specialties",
+      "app": "Mobile App",
+      "copyright": "© 2026 DarijaDoc. All rights reserved."
+    }
+  }
+}

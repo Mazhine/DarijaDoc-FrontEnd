@@ -1,0 +1,45 @@
+{
+  "Navbar": {
+    "joinButton": "Inscrire mon cabinet"
+  },
+  "Hero": {
+    "trust": "Plus de 500 médecins au Maroc nous font confiance",
+    "title": "Gérez votre cabinet intelligemment",
+    "subtitle": "Ne manquez plus aucun rendez-vous. Utilisez la puissance de l'IA pour gérer vos appels et vos patients en Darija.",
+    "cta": "Commencer gratuitement"
+  },
+  "HomePage": {
+    "Problems": {
+      "mainTitle": "Les médecins perdent des rendez-vous chaque jour",
+      "p1Title": "Heures de pointe = Chaos",
+      "p1Desc": "Quand le cabinet est plein, l'assistant(e) ne peut pas répondre à tout le monde.",
+      "p2Title": "Perte de revenus",
+      "p2Desc": "Chaque appel manqué est un patient potentiel perdu. Ne laissez plus vos appels sans réponse.",
+      "p3Title": "Stress accru",
+      "p3Desc": "Le téléphone qui sonne sans arrêt distrait votre équipe et réduit la qualité de service."
+    },
+    "Stats": {
+      "appointments": "Plus de RDVs",
+      "calls": "Réponse aux appels",
+      "satisfaction": "Satisfaction Patients",
+      "time": "Temps gagné /semaine"
+    },
+    "Success": {
+      "tag": "Success Story",
+      "quote": "Avec DarijaDoc, je ne manque plus aucun appel et mon cabinet est beaucoup plus organisé.",
+      "doctorName": "Dr. Ahmed Alaoui",
+      "doctorSpecialty": "Généraliste - Casablanca",
+      "stat": "+120 RDVs/mois"
+    },
+    "Footer": {
+      "description": "Première plateforme marocaine pour les médecins utilisant l'IA moderne.",
+      "platform": "Plateforme",
+      "home": "Accueil",
+      "doctors": "Professionnels de santé",
+      "faq": "FAQ",
+      "specialties": "Spécialités",
+      "app": "Télécharger l'application",
+      "copyright": "Fait avec fierté au Maroc 🇲🇦"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from 'react';
-import { usePathname, useRouter } from "@/i18n/routing";
+import { usePathname, useRouter } from "@/src/i18n/routing";
 import { useLocale } from "next-intl";
 
 export default function LanguageSwitcher() {
@@ -10,7 +10,6 @@ export default function LanguageSwitcher() {
   const locale = useLocale();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // تعريف اللغات مع الأعلام (Flags) بصيغة SVG لضمان الجودة
   const languages = [
     { 
       code: 'ar', 

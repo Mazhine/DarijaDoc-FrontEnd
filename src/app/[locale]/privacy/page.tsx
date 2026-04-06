@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
+import LanguageSwitcher from '../../components/home/LanguageSwitcher';
 
 export default function HomePage() {
   const nav = useTranslations('Navbar');
@@ -40,7 +40,7 @@ export default function HomePage() {
             {hero('description')}
           </p>
           <button className="bg-green-500 hover:bg-green-600 text-white text-xl font-black py-6 px-12 rounded-3xl shadow-2xl transition-all hover:scale-105 active:scale-95">
-             {hero('cta')} 💬
+            {hero('cta')} 💬
           </button>
         </div>
       </section>
