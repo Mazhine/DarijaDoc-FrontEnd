@@ -1,45 +1,175 @@
 {
-  "Navbar": {
-    "joinButton": "Inscrire mon cabinet"
-  },
-  "Hero": {
-    "trust": "Plus de 500 médecins au Maroc nous font confiance",
-    "title": "Gérez votre cabinet intelligemment",
-    "subtitle": "Ne manquez plus aucun rendez-vous. Utilisez la puissance de l'IA pour gérer vos appels et vos patients en Darija.",
-    "cta": "Commencer gratuitement"
-  },
-  "HomePage": {
-    "Problems": {
-      "mainTitle": "Les médecins perdent des rendez-vous chaque jour",
-      "p1Title": "Heures de pointe = Chaos",
-      "p1Desc": "Quand le cabinet est plein, l'assistant(e) ne peut pas répondre à tout le monde.",
-      "p2Title": "Perte de revenus",
-      "p2Desc": "Chaque appel manqué est un patient potentiel perdu. Ne laissez plus vos appels sans réponse.",
-      "p3Title": "Stress accru",
-      "p3Desc": "Le téléphone qui sonne sans arrêt distrait votre équipe et réduit la qualité de service."
-    },
-    "Stats": {
-      "appointments": "Plus de RDVs",
-      "calls": "Réponse aux appels",
-      "satisfaction": "Satisfaction Patients",
-      "time": "Temps gagné /semaine"
-    },
-    "Success": {
-      "tag": "Success Story",
-      "quote": "Avec DarijaDoc, je ne manque plus aucun appel et mon cabinet est beaucoup plus organisé.",
-      "doctorName": "Dr. Ahmed Alaoui",
-      "doctorSpecialty": "Généraliste - Casablanca",
-      "stat": "+120 RDVs/mois"
-    },
-    "Footer": {
-      "description": "Première plateforme marocaine pour les médecins utilisant l'IA moderne.",
-      "platform": "Plateforme",
-      "home": "Accueil",
-      "doctors": "Professionnels de santé",
+  "Landing": {
+    "nav": {
+      "features": "Fonctionnalités",
+      "pricing": "Abonnement",
       "faq": "FAQ",
-      "specialties": "Spécialités",
-      "app": "Télécharger l'application",
-      "copyright": "Fait avec fierté au Maroc 🇲🇦"
+      "contact": "Contact",
+      "cta": "Réserver une démo"
+    },
+    "hero": {
+      "badge": "Solution IA conçue pour les cabinets médicaux au Maroc",
+      "title": "Convertissez chaque appel patient en rendez-vous confirmé.",
+      "description": "DarijaDoc automatise la prise de rendez-vous par chatbot et assistant IA vocal, en Darija, français et arabe, pour réduire les appels manqués et structurer votre agenda sans alourdir votre équipe.",
+      "primaryCta": "Voir les formules",
+      "secondaryCta": "Découvrir la démo",
+      "stats": {
+        "recovered": "+32%",
+        "recoveredLabel": "Rendez-vous récupérés en moyenne",
+        "response": "24/7",
+        "responseLabel": "Réponse instantanée aux patients",
+        "timeSaved": "8h/sem",
+        "timeSavedLabel": "Temps administratif économisé"
+      }
+    },
+    "challenges": {
+      "eyebrow": "Constat terrain",
+      "title": "Un cabinet performant perd encore des patients sans le vouloir.",
+      "description": "Quand les appels arrivent en même temps que les consultations, la qualité de service chute. Notre IA absorbe ces pics sans faire attendre vos patients.",
+      "items": {
+        "calls": {
+          "title": "Appels non décrochés",
+          "description": "Les patients qui tombent sur un téléphone occupé passent souvent au cabinet suivant."
+        },
+        "admin": {
+          "title": "Surcharge administrative",
+          "description": "Votre équipe passe des heures sur des tâches répétitives au lieu d'accompagner les patients."
+        },
+        "patientExperience": {
+          "title": "Expérience patient irrégulière",
+          "description": "Des réponses tardives ou incomplètes nuisent à la confiance et aux retours positifs."
+        }
+      }
+    },
+    "features": {
+      "eyebrow": "Plateforme",
+      "title": "Tout ce qu'il faut pour gérer les rendez-vous sans friction.",
+      "description": "Une solution sobre, sécurisée et orientée résultats pour les médecins libéraux, cabinets de groupe et centres médicaux.",
+      "items": {
+        "booking": {
+          "title": "Prise de rendez-vous intelligente",
+          "description": "Le chatbot propose automatiquement les créneaux disponibles selon vos règles et spécialités."
+        },
+        "reminders": {
+          "title": "Rappels et confirmations automatiques",
+          "description": "SMS et WhatsApp de rappel avant consultation pour réduire les no-shows."
+        },
+        "multilingual": {
+          "title": "Communication locale",
+          "description": "Interactions en Darija, français et arabe avec un ton adapté au contexte médical."
+        },
+        "integration": {
+          "title": "Connexion à votre organisation",
+          "description": "Synchronisation avec votre agenda actuel et flux administratifs en quelques étapes."
+        },
+        "security": {
+          "title": "Protection des données",
+          "description": "Architecture pensée pour la confidentialité des échanges et la traçabilité des actions."
+        },
+        "support": {
+          "title": "Accompagnement dédié",
+          "description": "Onboarding, paramétrage et suivi mensuel pour garantir un ROI rapide."
+        }
+      }
+    },
+    "demo": {
+      "eyebrow": "Mise en place",
+      "title": "Lancez votre assistant en moins d'une semaine.",
+      "description": "Pas besoin d'équipe technique interne: notre équipe configure votre parcours patient et vos scénarios.",
+      "step1": {
+        "label": "Étape 1",
+        "text": "Audit de vos besoins: spécialité, volume d'appels, types de rendez-vous."
+      },
+      "step2": {
+        "label": "Étape 2",
+        "text": "Configuration des scripts conversationnels et des règles de planification."
+      },
+      "step3": {
+        "label": "Étape 3",
+        "text": "Activation, test en conditions réelles et optimisation continue chaque mois."
+      }
+    },
+    "testimonials": {
+      "eyebrow": "Résultats clients",
+      "title": "Des médecins qui gagnent du temps et du chiffre d'affaires.",
+      "description": "Des retours concrets observés après quelques semaines d'utilisation.",
+      "items": {
+        "one": {
+          "quote": "Notre secrétariat n'est plus saturé. Les patients obtiennent une réponse claire même en soirée.",
+          "author": "Dr. Salma B.",
+          "role": "Dermatologue, Casablanca",
+          "result": "+27% de RDV confirmés"
+        },
+        "two": {
+          "quote": "On a réduit les rendez-vous manqués grâce aux rappels automatiques et au suivi WhatsApp.",
+          "author": "Dr. Youssef M.",
+          "role": "Cardiologue, Rabat",
+          "result": "-34% d'absences patients"
+        },
+        "three": {
+          "quote": "L'outil est simple, élégant, et surtout il nous fait gagner un vrai temps médical.",
+          "author": "Dr. Imane A.",
+          "role": "Pédiatre, Marrakech",
+          "result": "8 heures gagnées / semaine"
+        }
+      }
+    },
+    "pricing": {
+      "eyebrow": "Tarification",
+      "title": "Un abonnement clair, aligné sur la croissance de votre cabinet.",
+      "description": "Démarrez simple, puis montez en capacité selon votre volume patient.",
+      "starter": {
+        "label": "Cabinet Essentiel",
+        "price": "1 490 MAD/mois",
+        "caption": "Idéal pour un médecin ou petit cabinet",
+        "features": {
+          "f1": "Jusqu'à 600 conversations patients / mois",
+          "f2": "Prise de rendez-vous + rappels automatiques",
+          "f3": "Support WhatsApp et email sous 24h"
+        }
+      },
+      "growth": {
+        "label": "Cabinet Croissance",
+        "price": "2 990 MAD/mois",
+        "badge": "Le plus choisi",
+        "caption": "Pour cabinets multi-praticiens et centres médicaux",
+        "features": {
+          "f1": "Conversations illimitées",
+          "f2": "Scénarios IA avancés par spécialité",
+          "f3": "Tableau de bord performances + exports",
+          "f4": "Accompagnement stratégique mensuel"
+        },
+        "cta": "Parler à un expert"
+      }
+    },
+    "faq": {
+      "eyebrow": "Questions fréquentes",
+      "title": "Ce que les médecins demandent avant de démarrer.",
+      "items": {
+        "q1": {
+          "question": "Le chatbot peut-il vraiment prendre des rendez-vous en Darija ?",
+          "answer": "Oui. Nous avons conçu les scénarios conversationnels avec des formulations naturelles en Darija pour guider le patient jusqu'à la confirmation."
+        },
+        "q2": {
+          "question": "Combien de temps faut-il pour le déploiement ?",
+          "answer": "En moyenne 3 à 7 jours ouvrables entre l'atelier de cadrage et la mise en production."
+        },
+        "q3": {
+          "question": "Est-ce compatible avec mon organisation actuelle ?",
+          "answer": "Oui, la plateforme est pensée pour s'adapter à vos habitudes de prise de rendez-vous et à votre calendrier existant."
+        },
+        "q4": {
+          "question": "Y a-t-il un engagement long terme ?",
+          "answer": "Nous proposons des abonnements mensuels avec accompagnement. Vous pouvez évoluer de formule selon vos besoins."
+        }
+      }
+    },
+    "finalCta": {
+      "eyebrow": "Prochaine étape",
+      "title": "Transformez votre accueil patient en moteur de croissance.",
+      "description": "Planifiez une démo personnalisée et recevez un plan d'implémentation adapté à votre spécialité.",
+      "primaryCta": "Demander une démo stratégique",
+      "secondaryCta": "Appeler maintenant"
     }
   }
 }

@@ -1,165 +1,186 @@
 'use client';
-import { useLocale } from 'next-intl';
-import { Link, usePathname, useRouter } from '@/src/i18n/routing';
-import { ChevronDown, Menu, Command, HelpCircle, Mail, UserPlus, Globe } from 'lucide-react';
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 
-const content = {
-  fr: {
-    resources: "Ressources",
-    faq: "FAQ",
-    faqDesc: "Réponses aux questions",
-    contact: "Contact",
-    contactDesc: "Parlez avec notre équipe",
-    join: "Nous Rejoindre",
-    joinDesc: "Faites partie de l'équipe",
-    login: "Se connecter",
-    btn: "Rejoindre"
-  },
-  ar: {
-    resources: "الموارد",
-    faq: "الأسئلة الشائعة",
-    faqDesc: "أجوبة على أسئلتكم",
-    contact: "تواصل معنا",
-    contactDesc: "هضر مع الفريق ديالنا",
-    join: "انضم إلينا",
-    joinDesc: "كون جزء من الفريق",
-    login: "تسجيل الدخول",
-    btn: "سجل دابا"
-  },
-  en: {
-    resources: "Resources",
-    faq: "FAQ",
-    faqDesc: "Answers to common questions",
-    contact: "Contact Us",
-    contactDesc: "Talk to our team",
-    join: "Join Us",
-    joinDesc: "Become a part of the team",
-    login: "Sign In",
-    btn: "Join me"
-  }
-}
+import { AnimatePresence, motion } from 'framer-motion';
+import { Globe, Menu, X } from 'lucide-react';
+import { useLocale } from 'next-intl';
+import { useState } from 'react';
+import { getLandingContent, type LocaleKey } from '../../content/landing';
+import { usePathname, useRouter } from '@/src/i18n/routing';
 
 export const Navbar = () => {
-  const locale = useLocale();
-  const t = content[locale as keyof typeof content] || content.en;
+  const locale = useLocale() as LocaleKey;
+  const copy = getLandingContent(locale);
   const isArabic = locale === 'ar';
   const pathname = usePathname();
   const router = useRouter();
-
-  const [isResourcesOpen, setIsResourcesOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const languages = [
     { code: 'fr', label: 'Français' },
     { code: 'ar', label: 'العربية' },
-    { code: 'en', label: 'English' }
+    { code: 'en', label: 'English' },
+  ] as const;
+
+  const navLinks = [
+    { href: '#features', label: copy.nav.features },
+    { href: '#pricing', label: copy.nav.pricing },
+    { href: '#faq', label: copy.nav.faq },
+    { href: '#contact', label: copy.nav.contact },
   ];
 
+  const switchLocale = (nextLocale: string) => {
+    router.replace(pathname, { locale: nextLocale });
+  };
+
+  if (pathname.includes('/admin')) {
+    return null;
+  }
+
   return (
-    <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none" dir={isArabic ? 'rtl' : 'ltr'}>
-      <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-[0_8px_30px_rgba(0,119,182,0.12)] border border-gray-100 flex items-center justify-between px-6 py-3 w-full max-w-5xl pointer-events-auto transition-all">
-
-        {/* Logo */}
-        <Link href="/" className={`flex items-center gap-2 group ${isArabic ? 'ml-8' : 'mr-8'}`}>
-          <Command className="w-7 h-7 text-[#0077b6] group-hover:rotate-12 transition-transform" />
-          <span className="text-xl font-black text-gray-900 tracking-tight hidden sm:block">
-            DarijaDoc<span className="text-[#00b4d8]">.</span>
+    <nav
+      className="pointer-events-none fixed left-0 right-0 top-3 z-50 flex justify-center px-3 md:px-4"
+      dir={isArabic ? 'rtl' : 'ltr'}
+    >
+      <div className="pointer-events-auto flex w-full max-w-6xl items-center justify-between rounded-[1.75rem] border border-white/10 bg-[#08111d]/82 px-4 py-3 shadow-[0_24px_60px_-32px_rgba(0,0,0,0.7)] backdrop-blur-xl md:px-6">
+        <a href={`/${locale}#hero`} className="flex items-center gap-3">
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-sm font-black text-[#9fe7d4]">
+            DD
           </span>
-        </Link>
-
-        {/* Centered Desktop Menu */}
-        <div className="hidden md:flex items-center gap-8 flex-1">
-
-          {/* Ressources Dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => setIsResourcesOpen(true)}
-            onMouseLeave={() => setIsResourcesOpen(false)}
-          >
-            <div className="flex items-center gap-1.5 text-[15px] text-gray-600 hover:text-[#0077b6] font-semibold transition-colors cursor-pointer py-2">
-              {t.resources} <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isResourcesOpen ? 'rotate-180' : ''}`} />
+          <div className="hidden sm:block">
+            <div className="text-sm font-black tracking-tight text-white">DarijaDoc</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              WhatsApp care flow
             </div>
-
-            <AnimatePresence>
-              {isResourcesOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.2 }}
-                  className={`absolute top-full ${isArabic ? 'right-0' : 'left-0'} mt-2 w-64 bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-[#90e0ef]/30 p-2 flex flex-col z-50`}
-                >
-                  <Link href="/faq" className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#90e0ef]/10 transition-colors">
-                    <HelpCircle className="w-5 h-5 text-[#00b4d8] mt-0.5" />
-                    <div>
-                      <div className="font-bold text-gray-900 text-sm">{t.faq}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">{t.faqDesc}</div>
-                    </div>
-                  </Link>
-                  <Link href="/join" className="flex items-start gap-3 p-3 rounded-xl hover:bg-[#90e0ef]/10 transition-colors">
-                    <UserPlus className="w-5 h-5 text-[#00b4d8] mt-0.5" />
-                    <div>
-                      <div className="font-bold text-gray-900 text-sm">{t.join}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">{t.joinDesc}</div>
-                    </div>
-                  </Link>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
+        </a>
 
+        <div className="hidden flex-1 items-center justify-center gap-7 md:flex">
+          {navLinks.map((link) => (
+            <a key={link.href} href={link.href} className="text-sm font-semibold text-slate-200 transition hover:text-[#9fe7d4]">
+              {link.label}
+            </a>
+          ))}
         </div>
 
-        {/* Right CTA & Language */}
-        <div className="hidden md:flex items-center gap-4">
-
-          {/* Language Selector Dropdown */}
+        <div className="hidden items-center gap-3 md:flex">
+          <a
+            href={`/${locale}/admin`}
+            className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-black text-slate-200 transition hover:border-[#9fe7d4]/45 hover:text-white"
+          >
+            Admin
+          </a>
           <div
             className="relative"
             onMouseEnter={() => setIsLangOpen(true)}
             onMouseLeave={() => setIsLangOpen(false)}
           >
-            <button className="flex items-center gap-1.5 text-gray-600 hover:text-[#0077b6] font-semibold p-2 rounded-lg transition-colors">
-              <Globe className="w-4 h-4" />
-              <span className="text-sm uppercase">{locale}</span>
+            <button
+              type="button"
+              className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-slate-200 transition hover:text-[#9fe7d4]"
+            >
+              <Globe className="h-4 w-4" />
+              <span className="uppercase">{locale}</span>
             </button>
+
             <AnimatePresence>
-              {isLangOpen && (
+              {isLangOpen ? (
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className={`absolute top-full ${isArabic ? 'left-0' : 'right-0'} mt-2 w-32 bg-[#0077b6]/95 backdrop-blur-md rounded-xl shadow-xl overflow-hidden py-1 z-50 border border-white/10`}
+                  exit={{ opacity: 0, y: 8 }}
+                  className={`absolute top-full mt-2 w-36 overflow-hidden rounded-2xl border border-white/12 bg-[#08111d]/96 py-1 shadow-xl backdrop-blur-md ${
+                    isArabic ? 'left-0' : 'right-0'
+                  }`}
                 >
-                  {languages.map(lang => (
+                  {languages.map((language) => (
                     <button
-                      key={lang.code}
-                      onClick={() => router.replace(pathname, { locale: lang.code })}
-                      className={`w-full text-${isArabic ? 'right' : 'left'} px-4 py-2 text-sm transition-colors ${locale === lang.code ? 'text-[#90e0ef] bg-white/10 font-bold' : 'text-gray-200 hover:bg-white/5 hover:text-white'}`}
+                      key={language.code}
+                      type="button"
+                      onClick={() => switchLocale(language.code)}
+                      className={`w-full px-4 py-2 text-sm transition-colors ${
+                        locale === language.code
+                          ? 'bg-white/8 font-bold text-[#9fe7d4]'
+                          : 'text-slate-200 hover:bg-white/6 hover:text-white'
+                      } ${isArabic ? 'text-right' : 'text-left'}`}
                     >
-                      {lang.label}
+                      {language.label}
                     </button>
                   ))}
                 </motion.div>
-              )}
+              ) : null}
             </AnimatePresence>
           </div>
 
-          <Link href="/join" className="bg-[#0077b6] text-white px-5 py-2.5 rounded-full font-bold text-sm hover:bg-[#00b4d8] transition-colors shadow-md shadow-[#0077b6]/20">
-            {t.btn}
-          </Link>
+          <a
+            href="#contact"
+            className="rounded-full bg-[#9fe7d4] px-5 py-2.5 text-sm font-black text-slate-950 transition hover:scale-[1.02]"
+          >
+            {copy.nav.cta}
+          </a>
         </div>
 
-        {/* Mobile menu toggle */}
-        <div className="md:hidden flex items-center">
-          <button className="text-[#0077b6] p-2">
-            <Menu className="w-6 h-6" />
-          </button>
-        </div>
-
+        <button
+          type="button"
+          className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 p-2 text-[#9fe7d4] md:hidden"
+          onClick={() => setIsMobileOpen((prev) => !prev)}
+          aria-expanded={isMobileOpen}
+          aria-label="Toggle navigation menu"
+        >
+          {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
       </div>
+
+      <AnimatePresence>
+        {isMobileOpen ? (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="absolute left-3 right-3 top-[76px] rounded-[1.75rem] border border-white/12 bg-[#08111d]/96 p-4 shadow-2xl backdrop-blur md:hidden"
+          >
+            <div className="flex flex-col gap-3 text-sm font-semibold text-slate-100">
+              {navLinks.map((link) => (
+                <a key={link.href} href={link.href} onClick={() => setIsMobileOpen(false)}>
+                  {link.label}
+                </a>
+              ))}
+            </div>
+
+            <div className="mt-4 grid gap-2 border-t border-white/8 pt-4">
+              {languages.map((language) => (
+                <button
+                  key={language.code}
+                  type="button"
+                  onClick={() => {
+                    setIsMobileOpen(false);
+                    switchLocale(language.code);
+                  }}
+                  className={`rounded-2xl px-3 py-2 text-sm font-semibold ${
+                    locale === language.code ? 'bg-white/8 text-[#9fe7d4]' : 'bg-white/4 text-slate-200'
+                  }`}
+                >
+                  {language.label}
+                </button>
+              ))}
+              <a
+                href={`/${locale}/admin`}
+                onClick={() => setIsMobileOpen(false)}
+                className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm font-black text-slate-100"
+              >
+                Admin
+              </a>
+              <a
+                href="#contact"
+                onClick={() => setIsMobileOpen(false)}
+                className="mt-2 inline-flex items-center justify-center rounded-full bg-[#9fe7d4] px-4 py-3 text-sm font-black text-slate-950"
+              >
+                {copy.nav.cta}
+              </a>
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </nav>
   );
 };

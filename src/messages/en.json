@@ -1,44 +1,175 @@
 {
-  "Navbar": {
-    "joinButton": "Join as a Doctor"
-  },
-  "Hero": {
-    "trust": "Trusted by +100 Clinics",
-    "title": "Modernize Your Clinic",
-    "subtitle": "The first AI-driven platform for Moroccan doctors.",
-    "cta": "Get Started Now"
-  },
-  "HomePage": {
-    "Problems": {
-      "mainTitle": "Why choose DarijaDoc?",
-      "p1Title": "Smart Scheduling",
-      "p1Desc": "Automate your appointments easily.",
-      "p2Title": "Lower Costs",
-      "p2Desc": "Reduce administrative overhead.",
-      "p3Title": "Zero Stress",
-      "p3Desc": "Focus on your patients, let us handle the rest."
-    },
-    "Stats": {
-      "appointments": "Increase in appointments",
-      "calls": "Automated calls",
-      "satisfaction": "Patient satisfaction",
-      "time": "Hours saved/week"
-    },
-    "SuccessStory": {
-      "title": "Success Stories from Our Doctors",
-      "quote": "DarijaDoc transformed how I manage my dental clinic in Casablanca.",
-      "doctorName": "Dr. Amine Alami",
-      "specialty": "Dentist - Casablanca"
-    },
-    "Footer": {
-      "description": "The future of healthcare management in Morocco.",
-      "platform": "Platform",
-      "home": "Home",
-      "doctors": "For Doctors",
+  "Landing": {
+    "nav": {
+      "features": "Features",
+      "pricing": "Pricing",
       "faq": "FAQ",
-      "specialties": "Specialties",
-      "app": "Mobile App",
-      "copyright": "© 2026 DarijaDoc. All rights reserved."
+      "contact": "Contact",
+      "cta": "Book a demo"
+    },
+    "hero": {
+      "badge": "AI scheduling for medical practices in Morocco",
+      "title": "Turn every patient inquiry into a confirmed appointment.",
+      "description": "DarijaDoc automates appointment booking through a medical chatbot and voice assistant in Darija, French, and Arabic, so your team stays focused on care while your calendar stays full.",
+      "primaryCta": "View plans",
+      "secondaryCta": "See how it works",
+      "stats": {
+        "recovered": "+32%",
+        "recoveredLabel": "Average recovered appointments",
+        "response": "24/7",
+        "responseLabel": "Instant patient response",
+        "timeSaved": "8h/week",
+        "timeSavedLabel": "Administrative time saved"
+      }
+    },
+    "challenges": {
+      "eyebrow": "Current reality",
+      "title": "Even great practices lose patients because calls are missed.",
+      "description": "During busy hours, reception teams are overloaded. Our assistant handles peak volume without compromising patient experience.",
+      "items": {
+        "calls": {
+          "title": "Missed calls",
+          "description": "When the line is busy, many patients simply move to another doctor."
+        },
+        "admin": {
+          "title": "Administrative overload",
+          "description": "Staff spend too much time on repetitive tasks instead of higher-value patient support."
+        },
+        "patientExperience": {
+          "title": "Inconsistent patient journey",
+          "description": "Late responses and unclear information reduce trust and satisfaction."
+        }
+      }
+    },
+    "features": {
+      "eyebrow": "Platform",
+      "title": "Everything your clinic needs to schedule without friction.",
+      "description": "A focused, elegant, and secure product for private practices, group clinics, and medical centers.",
+      "items": {
+        "booking": {
+          "title": "Smart appointment booking",
+          "description": "The chatbot suggests relevant slots automatically based on your schedule and rules."
+        },
+        "reminders": {
+          "title": "Automated reminders",
+          "description": "Pre-visit reminders through SMS and WhatsApp to reduce no-shows."
+        },
+        "multilingual": {
+          "title": "Local patient communication",
+          "description": "Natural interactions in Darija, French, and Arabic for better accessibility."
+        },
+        "integration": {
+          "title": "Workflow integration",
+          "description": "Connect to your current agenda and operations quickly, with minimal disruption."
+        },
+        "security": {
+          "title": "Data protection",
+          "description": "Built with privacy-first principles and clear action traceability."
+        },
+        "support": {
+          "title": "Dedicated onboarding",
+          "description": "Hands-on setup and monthly optimization to maximize outcomes."
+        }
+      }
+    },
+    "demo": {
+      "eyebrow": "Implementation",
+      "title": "Go live in less than one week.",
+      "description": "No internal technical team required. We configure your patient flow and booking logic end-to-end.",
+      "step1": {
+        "label": "Step 1",
+        "text": "Discovery workshop: specialty, call volume, and appointment types."
+      },
+      "step2": {
+        "label": "Step 2",
+        "text": "Conversation scripts and scheduling rules are tailored to your clinic."
+      },
+      "step3": {
+        "label": "Step 3",
+        "text": "Launch, live testing, and continuous monthly performance tuning."
+      }
+    },
+    "testimonials": {
+      "eyebrow": "Customer outcomes",
+      "title": "Doctors getting measurable time and revenue gains.",
+      "description": "Real-world impact observed within the first few weeks.",
+      "items": {
+        "one": {
+          "quote": "Our front desk is no longer overwhelmed. Patients now get clear responses even after hours.",
+          "author": "Dr. Salma B.",
+          "role": "Dermatologist, Casablanca",
+          "result": "+27% confirmed appointments"
+        },
+        "two": {
+          "quote": "Missed appointments dropped thanks to automatic reminders and follow-ups.",
+          "author": "Dr. Youssef M.",
+          "role": "Cardiologist, Rabat",
+          "result": "-34% no-shows"
+        },
+        "three": {
+          "quote": "The product is elegant and practical. It gave us real clinical time back.",
+          "author": "Dr. Imane A.",
+          "role": "Pediatrician, Marrakech",
+          "result": "8 hours saved per week"
+        }
+      }
+    },
+    "pricing": {
+      "eyebrow": "Pricing",
+      "title": "Simple subscription plans aligned with your growth.",
+      "description": "Start lean and scale capacity with your patient demand.",
+      "starter": {
+        "label": "Essential Practice",
+        "price": "1,490 MAD/month",
+        "caption": "Best for solo practitioners and small offices",
+        "features": {
+          "f1": "Up to 600 patient conversations / month",
+          "f2": "Booking automation + reminder workflows",
+          "f3": "WhatsApp and email support in under 24h"
+        }
+      },
+      "growth": {
+        "label": "Growth Practice",
+        "price": "2,990 MAD/month",
+        "badge": "Most selected",
+        "caption": "For multi-doctor clinics and medical centers",
+        "features": {
+          "f1": "Unlimited patient conversations",
+          "f2": "Advanced specialty-based AI flows",
+          "f3": "Performance dashboard and exports",
+          "f4": "Monthly strategic optimization sessions"
+        },
+        "cta": "Speak with an expert"
+      }
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "What doctors ask before getting started.",
+      "items": {
+        "q1": {
+          "question": "Can the chatbot really book appointments in Darija?",
+          "answer": "Yes. We designed the conversation flow in natural Darija, with medical context, until booking confirmation."
+        },
+        "q2": {
+          "question": "How long does deployment take?",
+          "answer": "Usually between 3 and 7 business days from kickoff to go-live."
+        },
+        "q3": {
+          "question": "Will it fit our existing organization?",
+          "answer": "Yes. The platform is configured around your current scheduling process and operational preferences."
+        },
+        "q4": {
+          "question": "Is there a long-term commitment?",
+          "answer": "Plans are monthly and upgradeable. You can move between tiers as your clinic evolves."
+        }
+      }
+    },
+    "finalCta": {
+      "eyebrow": "Next step",
+      "title": "Make your patient intake a predictable growth channel.",
+      "description": "Book a tailored demo and receive a clear implementation roadmap for your specialty.",
+      "primaryCta": "Request a strategic demo",
+      "secondaryCta": "Call now"
     }
   }
 }
