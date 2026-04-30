@@ -6,5 +6,5 @@ export default async function SecretaryPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/admin`);
+  redirect(`/${locale}/auth`);
 }

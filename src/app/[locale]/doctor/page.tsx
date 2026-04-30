@@ -6,5 +6,5 @@ export default async function DoctorPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/admin`);
+  redirect(`/${locale}/auth`);
 }

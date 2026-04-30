@@ -72,11 +72,12 @@ export async function GET(req: Request) {
                 startHour = "All Day";
             }
 
-            let duration = 1;
+            let duration = 30;
             if (start && end && start.includes("T") && end.includes("T")) {
-                const sH = parseInt(startHour.split(":")[0], 10);
-                const eH = parseInt(end.split("T")[1].substring(0, 2), 10);
-                if (!isNaN(sH) && !isNaN(eH)) duration = Math.max(1, eH - sH);
+                const startDate = new Date(start);
+                const endDate = new Date(end);
+                const diffMinutes = Math.round((endDate.getTime() - startDate.getTime()) / 60000);
+                if (!isNaN(diffMinutes) && diffMinutes > 0) duration = diffMinutes;
             }
 
             let name = item.summary || "Occupied";
@@ -121,7 +122,7 @@ export async function POST(req: Request) {
         if (body.startDateTime && body.endDateTime) {
             event = {
                 summary: body.summary || `${body.type || 'Consultation'} - ${body.name || 'Patient'}`,
-                description: body.description || `Generated automatically from AdminHub`,
+                description: body.description || `Generated automatically from DarijaDoc`,
                 start: { dateTime: new Date(body.startDateTime).toISOString() },
                 end: { dateTime: new Date(body.endDateTime).toISOString() },
             };
@@ -132,7 +133,7 @@ export async function POST(req: Request) {
 
             event = {
                 summary: `${body.type} - ${body.name}`,
-                description: `Generated automatically from AdminHub`,
+                description: `Generated automatically from DarijaDoc`,
                 start: { date: startDate.toISOString().split('T')[0] },
                 end: { date: endDate.toISOString().split('T')[0] },
             };
@@ -143,11 +144,11 @@ export async function POST(req: Request) {
 
             const startTime = new Date(targetDate);
             const endTime = new Date(targetDate);
-            endTime.setHours(startTime.getHours() + (body.duration || 1));
+            endTime.setMinutes(startTime.getMinutes() + (body.durationMinutes || body.duration || 30));
 
             event = {
                 summary: `${body.type} - ${body.name}`,
-                description: `Generated automatically from AdminHub`,
+                description: body.description || `Generated automatically from DarijaDoc`,
                 start: { dateTime: startTime.toISOString() },
                 end: { dateTime: endTime.toISOString() },
             };

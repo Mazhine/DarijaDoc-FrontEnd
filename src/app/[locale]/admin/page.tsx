@@ -1,11 +1,11 @@
-﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import {
-  Calendar,
   CalendarDays,
+  CheckCircle2,
+  ChevronDown,
   Globe,
   LayoutDashboard,
   LogOut,
@@ -13,7 +13,6 @@ import {
   Plus,
   ShieldAlert,
   Sun,
-  UserPlus,
   Users,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -22,13 +21,7 @@ import ClientsTab from '@/src/components/admin/ClientsTab';
 import CalendarTab from '@/src/components/admin/CalendarTab';
 import TeamTab from '@/src/components/admin/TeamTab';
 import { logAuditActivity } from '@/src/lib/audit';
-
-const defaultTeam = [
-  { id: 1, name: 'Admin Cabinet', email: 'admin@darijadoc.com', password: '123', role: 'Admin', access: 'Full Access' },
-  { id: 2, name: 'Dr. Amine Alami', email: 'amine@darijadoc.com', password: '123', role: 'Doctor', access: 'Full Access' },
-  { id: 3, name: 'Sara', email: 'sara@darijadoc.com', password: '123', role: 'Secretary', access: 'Calendar + Clients' },
-  { id: 4, name: 'Khalid', email: 'khalid@darijadoc.com', password: '123', role: 'Secretary', access: 'Calendar Only' },
-];
+import { getSeededTeam, type TeamMember, updateTeamMemberCredentials } from '@/src/lib/team';
 
 const UI = {
   en: {
@@ -39,17 +32,21 @@ const UI = {
       { id: 'team', label: 'Team & Access', icon: ShieldAlert },
     ],
     login: {
-      title: 'AdminHub Access',
-      subtitle: 'Sign in to manage your clinic',
-      email: 'Email / Account',
+      title: 'DarijaDoc Access',
+      subtitle: 'Sign in to manage your clinic workspace',
+      email: 'Email',
       password: 'Password',
+      emailPlaceholder: 'Enter your email',
+      passwordPlaceholder: 'Enter your password',
       button: 'Connect',
     },
-    sidebar: { theme: 'Theme', logout: 'Sign Out' },
-    topbar: {
-      addAppt: 'Add Appointment',
-      addPatient: 'Add Patient',
-      schedule: 'Manage Schedule',
+    sidebar: { theme: 'Theme', logout: 'Sign Out', language: 'Language' },
+    reset: {
+      title: 'Complete your account setup',
+      subtitle: 'Choose the final email and password this secretary account will use from now on.',
+      email: 'New email',
+      password: 'New password',
+      button: 'Save and continue',
     },
   },
   fr: {
@@ -60,17 +57,21 @@ const UI = {
       { id: 'team', label: 'Equipe & acces', icon: ShieldAlert },
     ],
     login: {
-      title: 'Acces AdminHub',
-      subtitle: 'Connectez-vous pour gerer votre clinique',
-      email: 'E-mail / Compte',
+      title: 'Acces DarijaDoc',
+      subtitle: 'Connectez-vous pour gerer votre espace clinique',
+      email: 'E-mail',
       password: 'Mot de passe',
+      emailPlaceholder: 'Inserez votre email',
+      passwordPlaceholder: 'Inserez votre mot de passe',
       button: 'Se connecter',
     },
-    sidebar: { theme: 'Theme', logout: 'Deconnexion' },
-    topbar: {
-      addAppt: 'Nouveau RDV',
-      addPatient: 'Nouveau patient',
-      schedule: 'Gerer l agenda',
+    sidebar: { theme: 'Theme', logout: 'Deconnexion', language: 'Langue' },
+    reset: {
+      title: 'Finaliser le compte',
+      subtitle: 'Choisissez l email et le mot de passe definitifs de cette secretaire.',
+      email: 'Nouvel e-mail',
+      password: 'Nouveau mot de passe',
+      button: 'Enregistrer et continuer',
     },
   },
   ar: {
@@ -81,110 +82,325 @@ const UI = {
       { id: 'team', label: 'الفريق والصلاحيات', icon: ShieldAlert },
     ],
     login: {
-      title: 'دخول الإدارة',
-      subtitle: 'سجل الدخول لإدارة العيادة',
-      email: 'البريد الإلكتروني / الحساب',
+      title: 'دخول DarijaDoc',
+      subtitle: 'سجل الدخول لإدارة مساحة العيادة',
+      email: 'البريد الإلكتروني',
       password: 'كلمة المرور',
+      emailPlaceholder: 'أدخل بريدك الإلكتروني',
+      passwordPlaceholder: 'أدخل كلمة المرور',
       button: 'دخول',
     },
-    sidebar: { theme: 'المظهر', logout: 'تسجيل خروج' },
-    topbar: {
-      addAppt: 'موعد جديد',
-      addPatient: 'مريض جديد',
-      schedule: 'إدارة الجدول',
+    sidebar: { theme: 'المظهر', logout: 'تسجيل خروج', language: 'اللغة' },
+    reset: {
+      title: 'إكمال إعداد الحساب',
+      subtitle: 'اختر البريد الإلكتروني وكلمة المرور النهائيين لهذا الحساب.',
+      email: 'البريد الجديد',
+      password: 'كلمة المرور الجديدة',
+      button: 'حفظ ومتابعة',
     },
   },
 } as const;
 
+const languages = [
+  { code: 'fr', label: 'Francais' },
+  { code: 'ar', label: 'العربية' },
+  { code: 'en', label: 'English' },
+] as const;
+
+function LocaleMenu({
+  locale,
+  label,
+  pathname,
+  compact = false,
+}: {
+  locale: string;
+  label: string;
+  pathname: string | null;
+  compact?: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div
+      className={`relative ${compact ? '' : 'flex-1'}`}
+      onMouseEnter={() => !compact && setIsOpen(true)}
+      onMouseLeave={() => !compact && setIsOpen(false)}
+    >
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className={`flex w-full items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:text-white ${
+          compact ? 'min-w-[132px] max-w-full' : ''
+        }`}
+      >
+        <span className="flex items-center gap-2">
+          <Globe className="h-4 w-4 text-slate-400" />
+          <span>{label}</span>
+        </span>
+        <span className="flex items-center gap-1 uppercase">
+          {locale}
+          <ChevronDown className={`h-4 w-4 transition ${isOpen ? 'rotate-180' : ''}`} />
+        </span>
+      </button>
+
+      <AnimatePresence>
+        {isOpen ? (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            className={`absolute top-full z-30 mt-2 overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-[#0d1726] ${
+              compact ? 'left-0 right-auto w-full min-w-[132px] max-w-[min(16rem,calc(100vw-2rem))]' : 'right-0 min-w-full'
+            }`}
+          >
+            <div>
+              {languages.map((language) => (
+                <button
+                  key={language.code}
+                  type="button"
+                  onClick={() => {
+                    const nextPath = pathname ? pathname.replace(/^\/(fr|en|ar)/, `/${language.code}`) : `/${language.code}/auth`;
+                    window.location.assign(nextPath);
+                  }}
+                  className={`block w-full rounded-2xl px-3 py-2 text-left text-sm transition ${
+                    locale === language.code
+                      ? 'bg-[#eff8f5] font-semibold text-[#12695b] dark:bg-[#9fe7d4]/12 dark:text-[#9fe7d4]'
+                      : 'text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/6'
+                  }`}
+                >
+                  {language.label}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const pathname = usePathname();
+  const router = useRouter();
   const locale = (pathname?.split('/')[1] || 'en') as keyof typeof UI;
   const copy = UI[locale] || UI.en;
   const isRtl = locale === 'ar';
-  const isClient = typeof window !== 'undefined';
-  const [isDark, setIsDark] = useState(true);
-  const [activeTab, setActiveTab] = useState(() => (isClient ? sessionStorage.getItem('adminTab') || 'dashboard' : 'dashboard'));
-  const [isAuthenticated, setIsAuthenticated] = useState(() => (isClient ? sessionStorage.getItem('adminAuth') === 'true' : false));
-  const [email, setEmail] = useState(() => (isClient ? sessionStorage.getItem('adminEmail') || '' : ''));
+  const backToSiteLabel = locale === 'fr' ? 'Retour au site' : locale === 'ar' ? 'العودة إلى الموقع' : 'Back to site';
+  const credentialsLabel = locale === 'fr' ? 'Mes identifiants' : locale === 'ar' ? 'بيانات الدخول' : 'My credentials';
+  const credentialsTitle = locale === 'fr' ? 'Modifier les identifiants' : locale === 'ar' ? 'تحديث بيانات الدخول' : 'Update sign-in details';
+  const credentialsSubtitle =
+    locale === 'fr'
+      ? 'Choisissez l e-mail et le mot de passe utilises pour vos prochaines connexions.'
+      : locale === 'ar'
+        ? 'اختر البريد وكلمة المرور اللذين ستستخدمهما لاحقا.'
+        : 'Choose the email and password you want to use from now on.';
+  const hasWindow = typeof window !== 'undefined';
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [isDark, setIsDark] = useState(() => (hasWindow ? localStorage.getItem('darijadoc-theme') === 'dark' : false));
+  const [activeTab, setActiveTab] = useState(() => (hasWindow ? sessionStorage.getItem('adminTab') || 'dashboard' : 'dashboard'));
+  const [isAuthenticated, setIsAuthenticated] = useState(() => (hasWindow ? sessionStorage.getItem('adminAuth') === 'true' : false));
+  const [email, setEmail] = useState(() => (hasWindow ? sessionStorage.getItem('adminEmail') || '' : ''));
   const [password, setPassword] = useState('');
-  const [userRole, setUserRole] = useState(() => (isClient ? sessionStorage.getItem('adminRole') || 'Admin' : 'Admin'));
-  const [userAccess, setUserAccess] = useState(() => (isClient ? sessionStorage.getItem('adminAccess') || 'Full Access' : 'Full Access'));
+  const [loginError, setLoginError] = useState('');
+  const [userRole, setUserRole] = useState(() => (hasWindow ? sessionStorage.getItem('adminRole') || 'Admin' : 'Admin'));
+  const [userAccess, setUserAccess] = useState(() => (hasWindow ? sessionStorage.getItem('adminAccess') || 'Full Access' : 'Full Access'));
+  const [pendingResetUser, setPendingResetUser] = useState<TeamMember | null>(null);
+  const [resetEmail, setResetEmail] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [resetPassword, setResetPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [resetError, setResetError] = useState('');
+  const [isCredentialsModalOpen, setIsCredentialsModalOpen] = useState(false);
 
   useEffect(() => {
-    document.documentElement.classList.add('dark');
-    const existingTeam = localStorage.getItem('clinicTeam');
-    if (!existingTeam) {
-      localStorage.setItem('clinicTeam', JSON.stringify(defaultTeam));
+    const savedTheme = localStorage.getItem('darijadoc-theme');
+    if (!savedTheme) {
+      localStorage.setItem('darijadoc-theme', 'light');
     }
+
+    document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+    getSeededTeam();
+
+    const frame = window.requestAnimationFrame(() => {
+      setIsHydrated(true);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+
     sessionStorage.setItem('adminTab', activeTab);
-  }, [activeTab]);
+  }, [activeTab, isHydrated]);
+
+  useEffect(() => {
+    if (isHydrated && isAuthenticated && pathname?.includes('/auth')) {
+      router.replace(`/${locale}/admin`);
+    }
+  }, [isAuthenticated, isHydrated, locale, pathname, router]);
 
   const toggleTheme = () => {
-    document.documentElement.classList.toggle('dark');
-    setIsDark((prev) => !prev);
+    const nextIsDark = !isDark;
+    document.documentElement.classList.toggle('dark', nextIsDark);
+    localStorage.setItem('darijadoc-theme', nextIsDark ? 'dark' : 'light');
+    setIsDark(nextIsDark);
+  };
+
+  const completeAuthentication = (user: TeamMember, nextTab?: string) => {
+    const ownerDoctorEmail = user.role === 'Secretary' ? user.ownerDoctorEmail || '' : user.email;
+    const ownerDoctorName = user.role === 'Secretary' ? user.ownerDoctorName || user.name : user.name;
+    const resolvedTab =
+      nextTab ||
+      (user.role === 'Secretary'
+        ? 'calendar'
+        : user.role === 'Doctor'
+          ? 'dashboard'
+          : 'team');
+
+    setUserRole(user.role);
+    setUserAccess(user.access);
+    setActiveTab(resolvedTab);
+    setIsAuthenticated(true);
+    setEmail(user.email);
+
+    sessionStorage.setItem('adminAuth', 'true');
+    sessionStorage.setItem('adminEmail', user.email);
+    sessionStorage.setItem('adminRole', user.role);
+    sessionStorage.setItem('adminAccess', user.access);
+    sessionStorage.setItem('adminName', user.name);
+    sessionStorage.setItem('adminOwnerDoctorEmail', ownerDoctorEmail);
+    sessionStorage.setItem('adminOwnerDoctorName', ownerDoctorName);
+    if (pathname?.includes('/auth')) {
+      router.replace(`/${locale}/admin`);
+    }
+
+    setTimeout(() => logAuditActivity('loggedIn', 'System', 'system'), 100);
   };
 
   const handleLogin = (event: React.FormEvent) => {
     event.preventDefault();
 
-    const savedTeam = JSON.parse(localStorage.getItem('clinicTeam') || '[]');
-    const user = savedTeam.find(
-      (member: any) =>
+    const user = getSeededTeam().find(
+      (member) =>
         member.email?.toLowerCase() === email.toLowerCase() &&
         member.password === password
     );
 
     if (!user) {
+      setLoginError(locale === 'fr' ? 'Identifiants invalides.' : locale === 'ar' ? 'بيانات الدخول غير صحيحة.' : 'Invalid credentials.');
       return;
     }
 
-    const nextRole = user.role;
-    const nextAccess = user.access;
-    const nextName = user.name;
-    let nextTab = 'dashboard';
+    setLoginError('');
 
-    if (user.role === 'Secretary') {
-      nextTab = 'calendar';
-    } else if (user.role === 'Doctor' && user.access !== 'Full Access') {
-      nextTab = 'clients';
-    } else if (user.role === 'Doctor') {
-      nextTab = 'dashboard';
-    } else if (user.role === 'Admin') {
-      nextTab = 'team';
+    if (user.mustResetCredentials) {
+      setPendingResetUser(user);
+      setResetEmail(user.email);
+      setCurrentPassword('');
+      setResetPassword('');
+      setConfirmPassword('');
+      return;
     }
 
-    setUserRole(nextRole);
-    setUserAccess(nextAccess);
-    setActiveTab(nextTab);
-    setIsAuthenticated(true);
-
-    sessionStorage.setItem('adminAuth', 'true');
-    sessionStorage.setItem('adminEmail', email);
-    sessionStorage.setItem('adminRole', nextRole);
-    sessionStorage.setItem('adminAccess', nextAccess);
-    sessionStorage.setItem('adminName', nextName);
-
-    setTimeout(() => logAuditActivity('loggedIn', 'System', 'system'), 100);
+    completeAuthentication(user);
   };
 
-  const tabs =
-    userRole === 'Admin'
-      ? copy.tabs
-      : userRole === 'Doctor'
-        ? copy.tabs.filter((tab) => tab.id !== 'team')
-        : userAccess === 'Calendar Only'
-          ? copy.tabs.filter((tab) => tab.id === 'calendar')
-          : copy.tabs.filter((tab) => tab.id === 'calendar' || tab.id === 'clients');
+  const handleResetCredentials = (event: React.FormEvent) => {
+    event.preventDefault();
 
-  const visibleActiveTab =
-    userRole !== 'Admin' && activeTab === 'team'
-      ? userRole === 'Secretary'
-        ? 'calendar'
-        : 'dashboard'
-      : activeTab;
+    if (!pendingResetUser) {
+      return;
+    }
+
+    const existing = getSeededTeam().find(
+      (member) =>
+        member.email.toLowerCase() === resetEmail.trim().toLowerCase() &&
+        member.id !== pendingResetUser.id
+    );
+
+    if (existing) {
+      setResetError(locale === 'fr' ? 'Cet e-mail est deja utilise.' : locale === 'ar' ? 'هذا البريد مستخدم بالفعل.' : 'This email is already in use.');
+      return;
+    }
+
+    const updatedUser = updateTeamMemberCredentials({
+      currentEmail: pendingResetUser.email,
+      nextEmail: resetEmail,
+      nextPassword: resetPassword,
+    });
+
+    if (!updatedUser) {
+      setResetError(locale === 'fr' ? 'Impossible de mettre a jour le compte.' : locale === 'ar' ? 'تعذر تحديث الحساب.' : 'Could not update account.');
+      return;
+    }
+
+    setPendingResetUser(null);
+    setResetError('');
+    completeAuthentication(updatedUser);
+  };
+
+  const handleUpdateOwnCredentials = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const currentEmail = sessionStorage.getItem('adminEmail') || email;
+    const nextEmail = resetEmail.trim().toLowerCase();
+    const oldPassword = currentPassword.trim();
+    const nextPassword = resetPassword.trim();
+    const nextPasswordConfirm = confirmPassword.trim();
+
+    if (!nextEmail || !oldPassword || !nextPassword || !nextPasswordConfirm) {
+      setResetError(locale === 'fr' ? 'Veuillez remplir tous les champs.' : locale === 'ar' ? 'يرجى ملء جميع الحقول.' : 'Please fill in all fields.');
+      return;
+    }
+
+    const currentUser = getSeededTeam().find((member) => member.email.toLowerCase() === currentEmail.toLowerCase());
+    if (!currentUser || currentUser.password !== oldPassword) {
+      setResetError(locale === 'fr' ? 'Ancien mot de passe incorrect.' : locale === 'ar' ? 'كلمة المرور الحالية غير صحيحة.' : 'Current password is incorrect.');
+      return;
+    }
+
+    if (nextPassword !== nextPasswordConfirm) {
+      setResetError(locale === 'fr' ? 'La confirmation du mot de passe ne correspond pas.' : locale === 'ar' ? 'تأكيد كلمة المرور غير مطابق.' : 'Password confirmation does not match.');
+      return;
+    }
+
+    const existing = getSeededTeam().find((member) => member.email.toLowerCase() === nextEmail && member.email.toLowerCase() !== currentEmail.toLowerCase());
+    if (existing) {
+      setResetError(locale === 'fr' ? 'Cet e-mail est deja utilise.' : locale === 'ar' ? 'هذا البريد مستخدم بالفعل.' : 'This email is already in use.');
+      return;
+    }
+
+    const updatedUser = updateTeamMemberCredentials({
+      currentEmail,
+      nextEmail,
+      nextPassword,
+    });
+
+    if (!updatedUser) {
+      setResetError(locale === 'fr' ? 'Impossible de mettre a jour le compte.' : locale === 'ar' ? 'تعذر تحديث الحساب.' : 'Could not update account.');
+      return;
+    }
+
+    setResetError('');
+    setIsCredentialsModalOpen(false);
+    setCurrentPassword('');
+    setResetPassword('');
+    setConfirmPassword('');
+    completeAuthentication(updatedUser, activeTab);
+  };
+
+  const tabs = useMemo(() => {
+    if (userRole === 'Admin' || userRole === 'Doctor') {
+      return copy.tabs;
+    }
+
+    return copy.tabs.filter((tab) => tab.id === 'calendar' || tab.id === 'clients');
+  }, [copy.tabs, userRole]);
+
+  const visibleActiveTab = userRole === 'Secretary' && activeTab === 'team' ? 'calendar' : activeTab;
 
   const renderContent = () => {
     switch (visibleActiveTab) {
@@ -193,74 +409,189 @@ export default function AdminDashboard() {
       case 'calendar':
         return <CalendarTab />;
       case 'team':
-        return userRole === 'Admin' ? <TeamTab /> : <DashboardTab />;
+        return userRole === 'Admin' || userRole === 'Doctor' ? <TeamTab /> : <DashboardTab />;
       default:
         return <DashboardTab />;
     }
   };
 
-  if (!isClient) {
+  if (!isHydrated) {
     return null;
   }
 
   if (!isAuthenticated) {
     return (
-      <div className={`page-shell min-h-screen flex items-center justify-center p-4 ${isRtl ? 'text-right' : 'text-left'}`} dir={isRtl ? 'rtl' : 'ltr'}>
+      <div
+        className={`relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(25,163,137,0.14),transparent_28%),radial-gradient(circle_at_90%_10%,rgba(255,162,125,0.16),transparent_22%),linear-gradient(180deg,#f8f5ef_0%,#f2f7f4_45%,#eef6f1_100%)] p-4 text-slate-900 transition-colors dark:bg-[radial-gradient(circle_at_top_left,rgba(37,164,138,0.18),transparent_28%),radial-gradient(circle_at_90%_10%,rgba(255,145,110,0.14),transparent_22%),linear-gradient(180deg,#0b1624_0%,#0d1726_55%,#07111f_100%)] dark:text-white ${isRtl ? 'text-right' : 'text-left'}`}
+        dir={isRtl ? 'rtl' : 'ltr'}
+      >
+        <div className="absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.6),transparent_72%)] dark:bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_72%)]" />
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="neo-panel w-full max-w-md rounded-[2rem] p-8"
+          className="relative mx-auto flex min-h-[calc(100vh-2rem)] max-w-5xl items-center justify-center"
         >
-          <div className="mb-8 flex flex-col items-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#9fe7d4]/10 text-[#9fe7d4]">
-              <LayoutDashboard className="h-8 w-8" />
+          <div className="grid w-full overflow-visible rounded-[2.2rem] border border-white/60 bg-white/90 shadow-[0_30px_90px_-44px_rgba(15,23,42,0.35)] backdrop-blur md:grid-cols-[0.9fr_1.1fr] dark:border-white/10 dark:bg-[#08111d]/92">
+            <div className="hidden flex-col justify-between bg-[linear-gradient(160deg,#12695b_0%,#1a8773_45%,#f0b39a_180%)] p-10 text-white md:flex">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-white/14 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em]">
+                  DarijaDoc
+                </div>
+                <h2 className="mt-6 max-w-sm text-4xl font-semibold leading-[1.02] [font-family:var(--font-medical-display)]">
+                  Un espace clinique plus clair pour chaque role.
+                </h2>
+                <p className="mt-4 max-w-sm text-sm leading-7 text-white/85">
+                  Admin, medecin et secretariat gardent chacun une vue utile, avec une interface plus calme, plus lisible et plus mature.
+                </p>
+              </div>
+              <div className="rounded-[1.75rem] border border-white/15 bg-white/10 px-5 py-5 text-sm leading-7 text-white/82">
+                Connexion securisee pour le cabinet, avec acces adaptes au role de chacun.
+              </div>
             </div>
-            <h1 className="text-2xl font-bold text-white">{copy.login.title}</h1>
-            <p className="mt-2 text-sm text-slate-400">{copy.login.subtitle}</p>
-          </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-300">{copy.login.email}</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-[#9fe7d4]/40"
-                placeholder="admin@example.com"
-              />
+            <div className="relative overflow-visible p-7 sm:p-10">
+              <div className="mb-8 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-[1.4rem] bg-[#eff8f5] text-[#12695b] shadow-inner dark:bg-[#9fe7d4]/10 dark:text-[#9fe7d4]">
+                    <LayoutDashboard className="h-7 w-7" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-semibold text-slate-950 dark:text-white [font-family:var(--font-medical-display)]">{copy.login.title}</h1>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{copy.login.subtitle}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 transition hover:border-slate-300 hover:text-slate-950 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+                >
+                  {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </button>
+              </div>
+
+              <div className="mb-4 flex items-center justify-end text-xs text-slate-500 dark:text-slate-400">
+                <a href={`/${locale}`} className="transition hover:text-[#12695b] dark:hover:text-[#9fe7d4]">
+                  {backToSiteLabel}
+                </a>
+              </div>
+
+              <form onSubmit={handleLogin} className="space-y-5">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">{copy.login.email}</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full rounded-[1.25rem] border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none transition focus:border-[#12695b] focus:ring-4 focus:ring-[#12695b]/10 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                    placeholder={copy.login.emailPlaceholder}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">{copy.login.password}</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full rounded-[1.25rem] border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none transition focus:border-[#12695b] focus:ring-4 focus:ring-[#12695b]/10 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                    placeholder={copy.login.passwordPlaceholder}
+                  />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <LocaleMenu locale={locale} label={copy.sidebar.language} pathname={pathname} compact />
+                  <button
+                    type="submit"
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-[1.25rem] bg-[#12695b] px-4 py-3 font-semibold text-white transition hover:bg-[#0f5a4e]"
+                  >
+                    <CheckCircle2 className="h-4 w-4" />
+                    {copy.login.button}
+                  </button>
+                </div>
+
+                {loginError ? <p className="text-sm font-semibold text-[#c95f3b] dark:text-[#ffb39b]">{loginError}</p> : null}
+              </form>
             </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-300">{copy.login.password}</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-[#9fe7d4]/40"
-                placeholder="••••••••"
-              />
-            </div>
-            <button type="submit" className="w-full rounded-xl bg-[#9fe7d4] px-4 py-3 font-bold text-slate-950 transition hover:bg-[#7ee7cf]">
-              {copy.login.button}
-            </button>
-          </form>
+          </div>
         </motion.div>
+
+        <AnimatePresence>
+          {pendingResetUser ? (
+            <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 20, scale: 0.96 }}
+                className="w-full max-w-md rounded-[2rem] border border-slate-200 bg-white p-7 shadow-2xl dark:border-white/10 dark:bg-[#0d1726]"
+              >
+                <h3 className="text-2xl font-semibold text-slate-950 dark:text-white [font-family:var(--font-medical-display)]">{copy.reset.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{copy.reset.subtitle}</p>
+
+                <form onSubmit={handleResetCredentials} className="mt-6 space-y-4">
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">{copy.reset.email}</label>
+                    <input
+                      type="email"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      required
+                      className="w-full rounded-[1.15rem] border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none transition focus:border-[#12695b] focus:ring-4 focus:ring-[#12695b]/10 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">{copy.reset.password}</label>
+                    <input
+                      type="password"
+                      value={resetPassword}
+                      onChange={(e) => setResetPassword(e.target.value)}
+                      minLength={3}
+                      required
+                      className="w-full rounded-[1.15rem] border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none transition focus:border-[#12695b] focus:ring-4 focus:ring-[#12695b]/10 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                    />
+                  </div>
+                  {resetError ? <p className="text-sm font-semibold text-[#c95f3b] dark:text-[#ffb39b]">{resetError}</p> : null}
+                  <button
+                    type="submit"
+                    className="inline-flex w-full items-center justify-center rounded-[1.15rem] bg-[#12695b] px-4 py-3 font-semibold text-white transition hover:bg-[#0f5a4e]"
+                  >
+                    {copy.reset.button}
+                  </button>
+                </form>
+              </motion.div>
+            </div>
+          ) : null}
+        </AnimatePresence>
       </div>
     );
   }
 
   return (
-    <div className={`page-shell flex min-h-screen w-full ${isRtl ? 'text-right' : 'text-left'}`} dir={isRtl ? 'rtl' : 'ltr'}>
-      <aside className={`hidden w-64 flex-col border-white/10 bg-[#08111d]/88 md:flex ${isRtl ? 'border-l' : 'border-r'}`}>
-        <div className="border-b border-white/10 p-6">
+    <div className={`flex min-h-screen w-full bg-[#f6f8f7] text-slate-900 transition-colors dark:bg-[#07111f] dark:text-white ${isRtl ? 'text-right' : 'text-left'}`} dir={isRtl ? 'rtl' : 'ltr'}>
+      <aside className={`hidden w-72 flex-col border-slate-200 bg-white md:flex dark:border-white/10 dark:bg-[#08111d]/88 ${isRtl ? 'border-l' : 'border-r'}`}>
+        <div className="border-b border-slate-200 p-6 dark:border-white/10">
           <div className="flex flex-col">
-            <div className="flex items-center gap-2 text-xl font-bold text-[#9fe7d4]">
+            <div className="flex items-center gap-2 text-xl font-semibold text-[#12695b] dark:text-[#9fe7d4] [font-family:var(--font-medical-display)]">
               <LayoutDashboard className="h-6 w-6" />
-              <span>AdminHub</span>
+              <span>DarijaDoc</span>
             </div>
             <div className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-400">{userRole}</div>
+            <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{userAccess}</div>
+          </div>
+        </div>
+
+        <div className="border-b border-slate-200 p-4 dark:border-white/10">
+          <div className="flex gap-2">
+            <button
+              onClick={toggleTheme}
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-slate-50 p-2.5 text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
+              title={copy.sidebar.theme}
+            >
+              {isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              <span className="text-xs font-semibold">{copy.sidebar.theme}</span>
+            </button>
+            <LocaleMenu locale={locale} label={copy.sidebar.language} pathname={pathname} />
           </div>
         </div>
 
@@ -273,10 +604,10 @@ export default function AdminDashboard() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 transition ${
+                className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 transition ${
                   isActive
-                    ? 'bg-[#9fe7d4]/12 font-medium text-[#9fe7d4]'
-                    : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                    ? 'bg-[#eff8f5] font-medium text-[#12695b] dark:bg-[#9fe7d4]/12 dark:text-[#9fe7d4]'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white'
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -286,42 +617,31 @@ export default function AdminDashboard() {
           })}
         </div>
 
-        <div className="space-y-2 border-t border-white/10 p-4">
-          <div className="mb-2 flex gap-2">
-            <button
-              onClick={toggleTheme}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-white/5 p-2.5 text-slate-300 transition hover:bg-white/10 hover:text-white"
-              title={copy.sidebar.theme}
-            >
-              {isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-              <span className="text-xs font-semibold">{copy.sidebar.theme}</span>
-            </button>
-            <div className="relative flex flex-1 items-center rounded-xl bg-white/5 px-2">
-              <Globe className="absolute left-2 h-4 w-4 text-slate-400" />
-              <select
-                value={locale}
-                onChange={(e) => {
-                  const nextLocale = e.target.value;
-                  const nextPath = pathname ? pathname.replace(`/${locale}`, `/${nextLocale}`) : `/${nextLocale}/admin`;
-                  window.location.href = nextPath;
-                }}
-                className="w-full appearance-none bg-transparent py-2.5 pl-6 pr-2 text-xs font-semibold text-slate-300 outline-none"
-              >
-                <option value="en">English</option>
-                <option value="fr">Francais</option>
-                <option value="ar">العربية</option>
-              </select>
-            </div>
-          </div>
-
+        <div className="space-y-2 border-t border-slate-200 p-4 dark:border-white/10">
+          <button
+            onClick={() => {
+              setResetEmail(sessionStorage.getItem('adminEmail') || email);
+              setCurrentPassword('');
+              setResetPassword('');
+              setConfirmPassword('');
+              setResetError('');
+              setIsCredentialsModalOpen(true);
+            }}
+            className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-slate-600 transition hover:bg-slate-50 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white"
+          >
+            <CheckCircle2 className="h-5 w-5" />
+            {credentialsLabel}
+          </button>
           <button
             onClick={() => {
               setIsAuthenticated(false);
               sessionStorage.removeItem('adminAuth');
               sessionStorage.removeItem('adminRole');
               sessionStorage.removeItem('adminAccess');
+              sessionStorage.removeItem('adminOwnerDoctorEmail');
+              sessionStorage.removeItem('adminOwnerDoctorName');
             }}
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-red-400 transition hover:bg-red-500/10"
+            className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-red-500 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
           >
             <LogOut className="h-5 w-5" />
             {copy.sidebar.logout}
@@ -330,58 +650,33 @@ export default function AdminDashboard() {
       </aside>
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="hidden h-20 shrink-0 items-center justify-end gap-2 border-b border-white/10 px-4 sm:px-8 md:flex">
-          <button
-            onClick={() => {
-              setActiveTab('calendar');
-              setTimeout(() => window.dispatchEvent(new Event('openApptModal')), 100);
-            }}
-            className="flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#9fe7d4] px-4 py-2 text-sm font-semibold text-slate-950"
-          >
-            <Plus className="h-4 w-4" /> <span>{copy.topbar.addAppt}</span>
-          </button>
-          {userRole !== 'Secretary' ? (
-            <button
-              onClick={() => {
-                setActiveTab('clients');
-                setTimeout(() => window.dispatchEvent(new Event('openClientModal')), 100);
-              }}
-              className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200"
-            >
-              <UserPlus className="h-4 w-4" /> <span>{copy.topbar.addPatient}</span>
-            </button>
-          ) : null}
-          <button
-            onClick={() => setActiveTab('calendar')}
-            className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200"
-          >
-            <Calendar className="h-4 w-4" /> <span>{copy.topbar.schedule}</span>
-          </button>
-        </div>
-
-        <div className="border-b border-white/10 bg-[#08111d]/88 p-4 md:hidden">
+        <div className="border-b border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#08111d]/88 md:hidden">
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 font-bold text-white">
-              <LayoutDashboard className="h-5 w-5 text-[#9fe7d4]" /> AdminHub
+            <div className="flex items-center gap-2 font-semibold text-slate-950 dark:text-white [font-family:var(--font-medical-display)]">
+              <LayoutDashboard className="h-5 w-5 text-[#12695b] dark:text-[#9fe7d4]" />
+              DarijaDoc
             </div>
             <div className="flex items-center gap-2">
-              <select
-                value={activeTab}
-                onChange={(e) => setActiveTab(e.target.value)}
-                className="rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-xs font-semibold text-slate-200 outline-none"
+              <button
+                onClick={() => {
+                  setResetEmail(sessionStorage.getItem('adminEmail') || email);
+                  setCurrentPassword('');
+                  setResetPassword('');
+                  setConfirmPassword('');
+                  setResetError('');
+                  setIsCredentialsModalOpen(true);
+                }}
+                className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
               >
-                {tabs.map((tab) => (
-                  <option key={tab.id} value={tab.id}>
-                    {tab.label}
-                  </option>
-                ))}
-              </select>
+                {credentialsLabel}
+              </button>
+              <LocaleMenu locale={locale} label={copy.sidebar.language} pathname={pathname} compact />
               <button
                 onClick={() => {
                   setActiveTab('calendar');
                   setTimeout(() => window.dispatchEvent(new Event('openApptModal')), 100);
                 }}
-                className="rounded-lg bg-[#9fe7d4] p-2 text-slate-950"
+                className="rounded-2xl bg-[#12695b] p-2.5 text-white"
               >
                 <Plus className="h-4 w-4" />
               </button>
@@ -403,6 +698,88 @@ export default function AdminDashboard() {
           </AnimatePresence>
         </main>
       </div>
+
+      <AnimatePresence>
+        {isCredentialsModalOpen ? (
+          <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.96 }}
+              className="w-full max-w-md rounded-[2rem] border border-slate-200 bg-white p-7 shadow-2xl dark:border-white/10 dark:bg-[#0d1726]"
+            >
+              <h3 className="text-2xl font-semibold text-slate-950 dark:text-white [font-family:var(--font-medical-display)]">{credentialsTitle}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{credentialsSubtitle}</p>
+
+              <form onSubmit={handleUpdateOwnCredentials} className="mt-6 space-y-4">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">{copy.reset.email}</label>
+                  <input
+                    type="email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    required
+                    className="w-full rounded-[1.15rem] border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none transition focus:border-[#12695b] focus:ring-4 focus:ring-[#12695b]/10 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    {locale === 'fr' ? 'Mot de passe actuel' : locale === 'ar' ? 'كلمة المرور الحالية' : 'Current password'}
+                  </label>
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    minLength={3}
+                    required
+                    className="w-full rounded-[1.15rem] border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none transition focus:border-[#12695b] focus:ring-4 focus:ring-[#12695b]/10 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">{copy.reset.password}</label>
+                  <input
+                    type="password"
+                    value={resetPassword}
+                    onChange={(e) => setResetPassword(e.target.value)}
+                    minLength={3}
+                    required
+                    className="w-full rounded-[1.15rem] border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none transition focus:border-[#12695b] focus:ring-4 focus:ring-[#12695b]/10 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    {locale === 'fr' ? 'Confirmer le nouveau mot de passe' : locale === 'ar' ? 'تأكيد كلمة المرور الجديدة' : 'Confirm new password'}
+                  </label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    minLength={3}
+                    required
+                    className="w-full rounded-[1.15rem] border border-slate-200 bg-white px-4 py-3 text-slate-950 outline-none transition focus:border-[#12695b] focus:ring-4 focus:ring-[#12695b]/10 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                  />
+                </div>
+                {resetError ? <p className="text-sm font-semibold text-[#c95f3b] dark:text-[#ffb39b]">{resetError}</p> : null}
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsCredentialsModalOpen(false)}
+                    className="inline-flex flex-1 items-center justify-center rounded-[1.15rem] border border-slate-200 px-4 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/5"
+                  >
+                    {locale === 'fr' ? 'Annuler' : locale === 'ar' ? 'إلغاء' : 'Cancel'}
+                  </button>
+                  <button
+                    type="submit"
+                    className="inline-flex flex-1 items-center justify-center rounded-[1.15rem] bg-[#12695b] px-4 py-3 font-semibold text-white transition hover:bg-[#0f5a4e]"
+                  >
+                    {locale === 'fr' ? 'Enregistrer' : locale === 'ar' ? 'حفظ' : 'Save'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

@@ -6,116 +6,87 @@ export function isLocale(value: string): value is LocaleKey {
   return locales.includes(value as LocaleKey);
 }
 
-type SectionCard = {
-  title: string;
-  description: string;
-};
-
 type LandingContent = {
   nav: {
-    features: string;
-    pricing: string;
+    workflow: string;
+    access: string;
     faq: string;
-    contact: string;
+    demo: string;
+    signIn: string;
     cta: string;
   };
   hero: {
     badge: string;
-    title: [string, string, string];
+    title: string;
     description: string;
     primaryCta: string;
     secondaryCta: string;
-    stats: [string, string][];
-    proofTitle: string;
-    proofList: string[];
+    points: string[];
   };
-  impact: {
+  highlights: {
+    items: Array<{ title: string; description: string }>;
+  };
+  workflow: {
     eyebrow: string;
     title: string;
-    description: string;
-    cards: SectionCard[];
+    steps: Array<{ id: string; title: string; description: string }>;
   };
-  system: {
+  access: {
     eyebrow: string;
     title: string;
-    description: string;
-    cards: SectionCard[];
-  };
-  process: {
-    eyebrow: string;
-    title: string;
-    description: string;
-    steps: [string, string, string][];
-    asideTitle: string;
-    asideLabels: string[];
-  };
-  workspace: {
-    eyebrow: string;
-    title: string;
-    description: string;
     cards: Array<{
       slug: 'doctor' | 'secretary' | 'admin';
       title: string;
       description: string;
-      cta: string;
       bullets: string[];
+      cta: string;
     }>;
-  };
-  testimonials: {
-    eyebrow: string;
-    title: string;
-    items: [string, string, string][];
-  };
-  pricing: {
-    eyebrow: string;
-    title: string;
-    description: string;
-    plan: string;
-    price: string;
-    period: string;
-    threshold: string;
-    includedLabel: string;
-    features: string[];
   };
   faq: {
     eyebrow: string;
     title: string;
-    items: [string, string][];
+    items: Array<{ question: string; answer: string }>;
   };
-  contact: {
+  demo: {
     eyebrow: string;
     title: string;
     description: string;
     labels: {
-      clinicName: string;
-      doctorFullName: string;
-      doctorPhone: string;
-      officePhone: string;
-      address: string;
-      weekdayHours: string;
-      fridayHours: string;
-      saturdayHours: string;
+      fullName: string;
+      specialty: string;
+      city: string;
+      phone: string;
+      email: string;
+      date: string;
+      time: string;
     };
     placeholders: {
-      clinicName: string;
-      doctorFullName: string;
-      doctorPhone: string;
-      officePhone: string;
-      address: string;
-      weekdayHours: string;
-      fridayHours: string;
-      saturdayHours: string;
+      fullName: string;
+      specialty: string;
+      city: string;
+      phone: string;
+      email: string;
     };
-    securityTitle: string;
-    securityPoints: string[];
+    helper: string;
     submit: string;
-    submitSuccess: string;
-    secondaryContact: string;
+    success: string;
+  };
+  closing: {
+    title: string;
+    description: string;
+    primaryCta: string;
+    secondaryCta: string;
+  };
+  footer: {
+    tagline: string;
+    productTitle: string;
+    productLinks: Array<{ label: string; href: string }>;
+    companyTitle: string;
+    companyLinks: Array<{ label: string; href: string }>;
+    resourcesTitle: string;
+    resourceLinks: Array<{ label: string; href: string }>;
   };
   chat: {
-    tag: string;
-    title: string;
-    subtitle: string;
     secure: string;
     input: string;
     online: string;
@@ -131,631 +102,544 @@ type LandingContent = {
 export const landingContent: Record<LocaleKey, LandingContent> = {
   fr: {
     nav: {
-      features: 'Fonctionnement',
-      pricing: 'Offre',
-      faq: 'FAQ',
-      contact: 'Démo',
-      cta: 'Demander une démo',
+      workflow: 'Parcours',
+      access: 'Accès',
+      faq: 'Questions',
+      demo: 'Demo',
+      signIn: 'Connexion',
+      cta: 'Planifier une démo',
     },
     hero: {
-      badge: 'Automatisation WhatsApp pensée pour les cabinets médicaux',
-      title: ['Une expérience patient', 'plus claire,', 'dès le premier message.'],
+      badge: 'Assistant WhatsApp pour cabinets médicaux',
+      title: 'Une prise de rendez-vous plus simple pour le patient et plus lisible pour le cabinet.',
       description:
-        'DarijaDoc transforme les demandes WhatsApp en rendez-vous confirmés avec un parcours plus fluide, plus crédible et plus rassurant pour le patient comme pour le cabinet.',
-      primaryCta: 'Voir la démo',
-      secondaryCta: "Voir l'offre complète",
-      stats: [
-        ['100% WhatsApp', 'Sans tunnel compliqué ni application à installer'],
-        ['3 à 7 jours', 'Pour lancer un parcours propre et opérationnel'],
-        ['Contrôle cabinet', 'Validation humaine sur les points sensibles'],
-      ],
-      proofTitle: 'Ce que le patient perçoit immédiatement',
-      proofList: [
-        'Une prise en charge rapide et lisible',
-        'Un cabinet plus organisé et plus rassurant',
-        'Un rendez-vous confirmé sans flottement',
+        'DarijaDoc qualifie la demande, propose le bon créneau et garde une validation humaine quand il le faut.',
+      primaryCta: 'Planifier une démo',
+      secondaryCta: 'Se connecter',
+      points: [
+        'Parcours WhatsApp familier pour le patient',
+        'Dashboard adapté selon le rôle',
+        'Mise en place rapide sans tunnel complexe',
       ],
     },
-    impact: {
-      eyebrow: 'Pourquoi ça fonctionne',
-      title: 'Une home plus crédible, plus cadrée, moins démonstrative.',
-      description:
-        "Le site doit inspirer confiance avant de chercher à impressionner. La structure, le ton et le rythme rendent la promesse plus sérieuse.",
-      cards: [
+    highlights: {
+      items: [
         {
-          title: 'Réponse immédiate',
-          description:
-            'Le patient comprend dès le départ que le cabinet répond vite et avec méthode.',
+          title: "Moins d'allers-retours",
+          description: 'Les demandes fréquentes sont cadrées dès le premier message.',
         },
         {
-          title: 'Orientation claire',
-          description:
-            'Le bon praticien ou le bon créneau apparaît sans ambiguïté inutile.',
+          title: 'Un ton plus médical',
+          description: 'Le site et les interfaces parlent cabinet, pas startup IA.',
         },
         {
-          title: 'Suivi rassurant',
-          description:
-            'La conversation continue avec des confirmations et des relances cohérentes.',
+          title: 'Le cabinet garde la main',
+          description: "Les confirmations sensibles restent validables par l'équipe.",
         },
       ],
     },
-    system: {
-      eyebrow: 'Structure produit',
-      title: 'Une présentation construite comme un service professionnel.',
-      description:
-        "Chaque section répond à une question précise: ce que c'est, ce que le patient ressent, comment le cabinet garde la main et comment la mise en place se déroule.",
-      cards: [
-        {
-          title: 'Promesse claire',
-          description:
-            'Le message principal est plus court, mieux priorisé et lisible sur mobile.',
-        },
-        {
-          title: 'Preuves utiles',
-          description:
-            'Les signaux de confiance restent visibles sans créer un effet marketing appuyé.',
-        },
-        {
-          title: 'Hiérarchie nette',
-          description:
-            "Les blocs secondaires ont été simplifiés pour garder l'attention sur l'essentiel.",
-        },
-        {
-          title: 'Parcours cohérent',
-          description:
-            "Le CTA, la démo et la demande d'onboarding suivent la même logique.",
-        },
-      ],
-    },
-    process: {
+    workflow: {
       eyebrow: 'Le parcours',
-      title: 'Un flux simple pour le patient, contrôlable pour le cabinet.',
-      description:
-        "Le visiteur doit comprendre très vite comment le message arrive, comment l'orientation se fait et à quel moment la confirmation est sécurisée.",
+      title: 'Trois étapes claires, sans friction inutile.',
       steps: [
-        ['01', 'Le patient écrit sur WhatsApp', "Le point d'entrée reste familier et sans friction."],
-        ['02', 'La demande est qualifiée', 'Le besoin, la zone ou le praticien sont cadrés en quelques messages.'],
-        ['03', 'Le rendez-vous est confirmé', 'Le patient repart avec une information claire et traçable.'],
+        {
+          id: '01',
+          title: 'Le patient écrit',
+          description: "La demande commence sur WhatsApp, sans application à installer.",
+        },
+        {
+          id: '02',
+          title: 'Le besoin est qualifié',
+          description: 'Motif, praticien, disponibilité et contexte sont clarifiés rapidement.',
+        },
+        {
+          id: '03',
+          title: 'Le bon suivi part',
+          description: 'Le patient reçoit un rendez-vous confirmé ou une reprise humaine.',
+        },
       ],
-      asideTitle: 'Un rendu plus professionnel sert aussi la confiance.',
-      asideLabels: ['Qualification', 'Relance', 'Validation'],
     },
-    workspace: {
-      eyebrow: 'Espaces métier',
-      title: 'Des interfaces distinctes selon le rôle, sans casser la cohérence du produit.',
-      description:
-        "Chaque espace garde la même base visuelle, mais adapte sa densité, ses priorités et ses actions au quotidien réel du cabinet.",
+    access: {
+      eyebrow: 'Accès',
+      title: 'Un même produit, trois vues métier.',
       cards: [
         {
           slug: 'doctor',
-          title: 'Espace docteur',
-          description:
-            'Agenda, file patient, notes de consultation et relances utiles dans une interface plus calme et focalisée.',
-          cta: "Voir l'espace docteur",
-          bullets: ['Vue journée', 'Patients à confirmer', 'Actions cliniques'],
+          title: 'Docteur',
+          description: "Vue agenda, patients du jour, notes et points à confirmer.",
+          bullets: ['Journée clinique', 'Fiches patient', 'Suivi médical'],
+          cta: 'Connexion',
         },
         {
           slug: 'secretary',
-          title: 'Espace secrétaire',
-          description:
-            "Inbox WhatsApp, confirmations, rappels et arbitrages d'agenda pensés pour l'exécution rapide.",
-          cta: "Voir l'espace secrétaire",
-          bullets: ['Messages entrants', 'Créneaux à ajuster', 'Rappels en attente'],
+          title: 'Secrétaire',
+          description: "Gestion des demandes, confirmations, rappels et ajustements d'agenda.",
+          bullets: ['Messages entrants', 'Rappels', 'Créneaux'],
+          cta: 'Connexion',
         },
-        {
-          slug: 'admin',
-          title: 'Espace admin',
-          description:
-            'Pilotage des comptes, des rôles, des performances et des garde-fous opérationnels dans une vue plus analytique.',
-          cta: "Voir l'espace admin",
-          bullets: ['Comptes & rôles', 'Performance', 'Sécurité'],
-        },
-      ],
-    },
-    testimonials: {
-      eyebrow: 'Signaux de confiance',
-      title: 'Des indicateurs visibles sans surcharger la page.',
-      items: [
-        ['+41%', 'Messages convertis', 'Le parcours réduit les hésitations entre la première demande et la confirmation.'],
-        ['-28%', "Erreurs d'orientation", 'Le cabinet paraît plus structuré parce que le tri est plus net.'],
-        ['Semaine 1', 'Impact perceptible', 'Le ton, la clarté et la cadence changent rapidement la perception.'],
-      ],
-    },
-    pricing: {
-      eyebrow: 'Offre',
-      title: 'Une offre lisible dès la première lecture.',
-      description:
-        'Le bloc tarifaire doit rester simple: ce qui est inclus, ce qui change après le lancement et ce que le cabinet reçoit concrètement.',
-      plan: 'Lancement',
-      price: '400 Dh',
-      period: '/ mois au démarrage',
-      threshold: '600 Dh au-delà de 30 patients / mois',
-      includedLabel: 'Inclus',
-      features: [
-        'Prise de rendez-vous complète sur WhatsApp',
-        'Orientation selon le besoin, les symptômes et le contexte',
-        'Scénarios dédiés par praticien ou spécialité',
-        'Onboarding, réglages et optimisation au lancement',
       ],
     },
     faq: {
-      eyebrow: 'Questions fréquentes',
-      title: 'Les objections principales sont traitées sans détour.',
+      eyebrow: 'Questions',
+      title: "Les questions qu'un médecin pose avant d'essayer.",
       items: [
-        ['Le produit est-il déjà vocal ?', 'Non. La valeur actuelle repose sur la vitesse, la clarté et la qualité du parcours WhatsApp.'],
-        ['Le secrétariat garde-t-il la main ?', 'Oui. DarijaDoc aide à structurer et accélérer, mais le cabinet conserve la validation.'],
-        ['Combien de temps faut-il pour lancer ?', 'Comptez généralement entre 3 et 7 jours pour un déploiement propre.'],
+        {
+          question: 'Est-ce que je garde la main sur les rendez-vous ?',
+          answer: "Oui. DarijaDoc accélère le tri et la prise de rendez-vous, mais le cabinet garde la validation quand c'est nécessaire.",
+        },
+        {
+          question: 'Est-ce que mes secrétaires peuvent continuer à travailler comme avant ?',
+          answer: "Oui. L'outil structure les demandes et fait gagner du temps, sans casser les habitudes utiles du secrétariat.",
+        },
+        {
+          question: 'Est-ce que ça marche seulement pour un seul médecin ?',
+          answer: 'Non. Le produit peut être organisé par praticien, ville, spécialité ou mode de disponibilité.',
+        },
+        {
+          question: 'Comment le patient réserve sa démo ou son rendez-vous ?',
+          answer: 'Le parcours propose des créneaux disponibles avec une logique proche de Calendly, puis confirme le bon slot.',
+        },
+        {
+          question: "Que voit un admin par rapport à un docteur ?",
+          answer: "L'admin gère les utilisateurs et les accès. Le docteur voit son activité clinique, pas la gestion des comptes.",
+        },
+        {
+          question: 'Est-ce que je peux connecter mon agenda ?',
+          answer: 'Oui, la base Google Calendar est prévue pour synchroniser les disponibilités réelles.',
+        },
+        {
+          question: 'Combien de temps pour être opérationnel ?',
+          answer: 'En général quelques jours suffisent pour cadrer le parcours, les rôles et les créneaux.',
+        },
+        {
+          question: 'Est-ce que le ton peut être adapté à ma spécialité ?',
+          answer: 'Oui. Les messages, les questions fréquentes et le parcours peuvent être ajustés à votre contexte.',
+        },
       ],
     },
-    contact: {
-      eyebrow: 'Demander une démo',
-      title: 'Préparer le cadrage du cabinet avant la démo.',
+    demo: {
+      eyebrow: 'Planifier une démo',
+      title: "Choisissez un créneau, on s'adapte à votre pratique.",
       description:
-        "Renseignez les informations essentielles pour que la démonstration soit alignée sur votre organisation réelle.",
+        'Remplissez quelques informations utiles, choisissez une date puis un horaire disponible.',
       labels: {
-        clinicName: 'Nom du cabinet',
-        doctorFullName: 'Nom et prénom du docteur',
-        doctorPhone: 'Numéro de téléphone du docteur',
-        officePhone: 'Numéro fixe du cabinet ou du secrétariat',
-        address: 'Adresse du cabinet',
-        weekdayHours: 'Disponibilité du lundi au jeudi',
-        fridayHours: 'Disponibilité du vendredi',
-        saturdayHours: 'Disponibilité du samedi',
+        fullName: 'Nom complet',
+        specialty: 'Spécialité',
+        city: 'Ville',
+        phone: 'Téléphone',
+        email: 'E-mail',
+        date: 'Date',
+        time: 'Horaire',
       },
       placeholders: {
-        clinicName: 'Cabinet Dr El Idrissi',
-        doctorFullName: 'Dr Salma El Idrissi',
-        doctorPhone: '+212 6 12 34 56 78',
-        officePhone: '+212 5 22 00 00 00',
-        address: 'Hay Riad, Rabat',
-        weekdayHours: '09:00 - 13:00 / 15:00 - 19:00',
-        fridayHours: '09:00 - 12:30 / 15:30 - 18:30',
-        saturdayHours: '09:00 - 13:00',
+        fullName: 'Dr Salma El Idrissi',
+        specialty: 'Médecine générale',
+        city: 'Rabat',
+        phone: '+212 6 12 34 56 78',
+        email: 'salma@cabinet.ma',
       },
-      securityTitle: 'Base plus propre, plus robuste, plus senior.',
-      securityPoints: [
-        "Hiérarchie de contenu simplifiée pour éviter l'effet AI slop.",
-        'Composants plus lisibles, sections mieux séparées et CTA cohérents.',
-        'Base plus autonome hors réseau et comportement par défaut mieux cadré.',
+      helper: "Les créneaux affichés simulent une réservation de démo type Calendly.",
+      submit: 'Confirmer la démo',
+      success: 'Demande enregistrée. Le créneau choisi est réservé pour la démo.',
+    },
+    closing: {
+      title: "Une démo utile vaut mieux qu'une longue promesse.",
+      description: 'Choisissez un créneau et voyez le parcours, les rôles et le dashboard qui correspondent à votre cabinet.',
+      primaryCta: 'Planifier une démo',
+      secondaryCta: 'Connexion',
+    },
+    footer: {
+      tagline: 'DarijaDoc simplifie la relation patient sur WhatsApp sans perdre la logique du cabinet.',
+      productTitle: 'Produit',
+      productLinks: [
+        { label: 'Parcours', href: '#workflow' },
+        { label: 'Accès', href: '#access' },
+        { label: 'Questions', href: '#faq' },
       ],
-      submit: 'Envoyer la demande',
-      submitSuccess: 'Demande bien enregistrée. La démo peut maintenant être préparée sur une base claire.',
-      secondaryContact: 'Appeler maintenant',
+      companyTitle: 'Entreprise',
+      companyLinks: [
+        { label: 'Contact', href: '/fr/contact' },
+        { label: 'Confidentialité', href: '/fr/privacy' },
+        { label: 'Rejoindre', href: '/fr/join' },
+      ],
+      resourcesTitle: 'Ressources',
+      resourceLinks: [
+        { label: 'FAQ', href: '/fr/faq' },
+        { label: 'Connexion', href: '/fr/auth' },
+        { label: 'Démo', href: '#demo' },
+      ],
     },
     chat: {
-      tag: 'Démo WhatsApp',
-      title: 'Un échange plus net entre le patient et le cabinet.',
-      subtitle:
-        'La demande est comprise, orientée puis confirmée sans détour. La démonstration montre surtout de la clarté, pas des effets.',
-      secure: 'Messages chiffrés et parcours cadré.',
+      secure: 'Conversation chiffrée et parcours guidé.',
       input: 'Votre message',
-      online: 'en ligne',
+      online: 'En ligne',
       messages: [
-        { id: 1, sender: 'them', text: 'Bonjour, pouvez-vous préciser vos symptômes et votre quartier ?', time: '10:42' },
-        { id: 2, sender: 'me', text: 'Fièvre, mal de gorge, je suis à Hay Riad.', time: '10:44' },
-        { id: 3, sender: 'them', text: "Le Dr Yassine est disponible aujourd'hui à 17 h 30. Souhaitez-vous confirmer ?", time: '10:45' },
-        { id: 4, sender: 'me', text: 'Oui, je confirme le rendez-vous.', time: '10:46' },
-        { id: 5, sender: 'them', text: 'Parfait. Vous recevrez aussi un rappel automatique avant la consultation.', time: '10:47' },
+        { id: 1, sender: 'them', text: 'Bonjour, vous souhaitez consulter quel praticien ?', time: '10:42' },
+        { id: 2, sender: 'me', text: 'Un généraliste, plutôt en fin de journée.', time: '10:43' },
+        { id: 3, sender: 'them', text: 'Le Dr Salma a un créneau jeudi à 18:00. Je vous le réserve ?', time: '10:44' },
+        { id: 4, sender: 'me', text: 'Oui, je confirme.', time: '10:45' },
+        { id: 5, sender: 'them', text: 'Parfait. Vous recevrez un rappel automatique avant le rendez-vous.', time: '10:46' },
       ],
     },
   },
   en: {
     nav: {
-      features: 'Flow',
-      pricing: 'Offer',
-      faq: 'FAQ',
-      contact: 'Demo',
-      cta: 'Request a demo',
+      workflow: 'Flow',
+      access: 'Access',
+      faq: 'Questions',
+      demo: 'Demo',
+      signIn: 'Sign In',
+      cta: 'Schedule a demo',
     },
     hero: {
-      badge: 'WhatsApp automation designed for medical practices',
-      title: ['A sharper patient experience,', 'clearer', 'from the very first message.'],
+      badge: 'WhatsApp assistant for medical practices',
+      title: 'A calmer booking flow for patients and a clearer workflow for the clinic.',
       description:
-        'DarijaDoc turns WhatsApp requests into confirmed appointments with a smoother, more credible, and more reassuring flow for both patients and clinics.',
-      primaryCta: 'Watch the demo',
-      secondaryCta: 'See the full offer',
-      stats: [
-        ['100% WhatsApp', 'No heavy funnel and no app to install'],
-        ['3 to 7 days', 'To launch a clean and operational flow'],
-        ['Clinic control', 'Human validation on sensitive cases'],
-      ],
-      proofTitle: 'What the patient notices immediately',
-      proofList: [
-        'Faster and clearer handling',
-        'A more organized and reassuring clinic image',
-        'A confirmed appointment without uncertainty',
+        'DarijaDoc qualifies the request, suggests the right slot, and keeps a human checkpoint when needed.',
+      primaryCta: 'Schedule a demo',
+      secondaryCta: 'Sign In',
+      points: [
+        'Familiar WhatsApp journey for patients',
+        'Role-based dashboard after sign in',
+        'Fast setup without a complicated funnel',
       ],
     },
-    impact: {
-      eyebrow: 'Why it works',
-      title: 'A stronger, calmer, more credible homepage.',
-      description:
-        'The site should inspire confidence before trying to impress. Structure, tone, and rhythm make the promise feel more serious.',
-      cards: [
+    highlights: {
+      items: [
         {
-          title: 'Immediate response',
-          description:
-            'Patients quickly feel that the clinic is reachable and well organized.',
+          title: 'Less back and forth',
+          description: 'Frequent requests are framed from the first message.',
         },
         {
-          title: 'Clear routing',
-          description:
-            'The right practitioner or time slot appears without unnecessary ambiguity.',
+          title: 'More clinical tone',
+          description: 'The product feels like a practice tool, not an AI landing page.',
         },
         {
-          title: 'Reassuring follow-through',
-          description:
-            'Messages continue with coherent confirmations and reminders.',
+          title: 'Human control remains',
+          description: 'Sensitive confirmations can still be validated by staff.',
         },
       ],
     },
-    system: {
-      eyebrow: 'Product structure',
-      title: 'A presentation built like a professional service.',
-      description:
-        'Each section answers a precise question: what it is, what the patient feels, how the clinic stays in control, and how setup works.',
-      cards: [
-        {
-          title: 'Clear promise',
-          description:
-            'The main message is shorter, better prioritized, and easier to read on mobile.',
-        },
-        {
-          title: 'Useful proof',
-          description:
-            'Trust signals stay visible without feeling overly promotional.',
-        },
-        {
-          title: 'Sharper hierarchy',
-          description:
-            'Secondary blocks were simplified to keep attention on what matters.',
-        },
-        {
-          title: 'Coherent flow',
-          description:
-            'The CTA, demo, and onboarding request now follow the same logic.',
-        },
-      ],
-    },
-    process: {
+    workflow: {
       eyebrow: 'The flow',
-      title: 'Simple for patients, controllable for clinics.',
-      description:
-        'Visitors should understand very quickly how a message arrives, how routing happens, and when the confirmation is secured.',
+      title: 'Three clear steps, with less friction.',
       steps: [
-        ['01', 'Patient sends a WhatsApp message', 'The entry point stays familiar and low-friction.'],
-        ['02', 'The request gets qualified', 'Need, area, or practitioner is framed in a few messages.'],
-        ['03', 'The appointment gets confirmed', 'The patient leaves with clear and traceable information.'],
+        {
+          id: '01',
+          title: 'Patient sends a message',
+          description: 'The request starts on WhatsApp, with no extra app to install.',
+        },
+        {
+          id: '02',
+          title: 'The need is qualified',
+          description: 'Reason, doctor, availability, and context are clarified quickly.',
+        },
+        {
+          id: '03',
+          title: 'The right follow-up goes out',
+          description: 'The patient gets a confirmed appointment or a human handoff.',
+        },
       ],
-      asideTitle: 'A more professional interface also strengthens trust.',
-      asideLabels: ['Qualification', 'Follow-up', 'Validation'],
     },
-    workspace: {
-      eyebrow: 'Role workspaces',
-      title: 'Distinct interfaces by role, without breaking product consistency.',
-      description:
-        'Each workspace keeps the same visual foundation while shifting density, priorities, and actions to match the actual job.',
+    access: {
+      eyebrow: 'Access',
+      title: 'One product, three role-based views.',
       cards: [
         {
           slug: 'doctor',
-          title: 'Doctor workspace',
-          description:
-            'Schedule, patient queue, consultation notes, and useful follow-ups in a calmer, more focused interface.',
-          cta: 'Open doctor workspace',
-          bullets: ['Daily schedule', 'Patients to confirm', 'Clinical actions'],
+          title: 'Doctor',
+          description: 'Schedule, day list, notes, and the patients that need review.',
+          bullets: ['Clinical day', 'Patient files', 'Medical follow-up'],
+          cta: 'Sign In',
         },
         {
           slug: 'secretary',
-          title: 'Secretary workspace',
-          description:
-            'WhatsApp inbox, confirmations, reminders, and calendar arbitration designed for fast execution.',
-          cta: 'Open secretary workspace',
-          bullets: ['Incoming messages', 'Slots to adjust', 'Pending reminders'],
+          title: 'Secretary',
+          description: 'Incoming requests, reminders, confirmations, and schedule changes.',
+          bullets: ['Inbox', 'Reminders', 'Open slots'],
+          cta: 'Sign In',
         },
-        {
-          slug: 'admin',
-          title: 'Admin workspace',
-          description:
-            'Accounts, roles, performance, and operational safeguards in a more analytical control view.',
-          cta: 'Open admin workspace',
-          bullets: ['Accounts & roles', 'Performance', 'Security'],
-        },
-      ],
-    },
-    testimonials: {
-      eyebrow: 'Trust signals',
-      title: 'Visible indicators without overloading the page.',
-      items: [
-        ['+41%', 'Messages converted', 'The flow reduces hesitation between first request and confirmation.'],
-        ['-28%', 'Routing mistakes', 'The clinic feels more structured because the triage is cleaner.'],
-        ['Week 1', 'Visible impact', 'Tone, clarity, and pace shift perception quickly.'],
-      ],
-    },
-    pricing: {
-      eyebrow: 'Offer',
-      title: 'An offer that reads clearly at first glance.',
-      description:
-        'The pricing block should stay simple: what is included, what changes after launch, and what the clinic gets in practice.',
-      plan: 'Launch',
-      price: '400 MAD',
-      period: '/ month at start',
-      threshold: '600 MAD beyond 30 patients / month',
-      includedLabel: 'Included',
-      features: [
-        'Full WhatsApp appointment booking flow',
-        'Routing by need, symptoms, and context',
-        'Dedicated scenarios by practitioner or specialty',
-        'Onboarding, setup, and launch optimization',
       ],
     },
     faq: {
-      eyebrow: 'FAQ',
-      title: 'Main objections are handled directly.',
+      eyebrow: 'Questions',
+      title: 'The questions doctors usually ask first.',
       items: [
-        ['Is the product already voice-based?', 'No. The current value is speed, clarity, and quality inside the WhatsApp journey.'],
-        ['Does the front desk keep control?', 'Yes. DarijaDoc helps structure and accelerate, while the clinic keeps final validation.'],
-        ['How long does launch take?', 'Usually between 3 and 7 days for a clean rollout.'],
+        {
+          question: 'Do I still control appointments?',
+          answer: 'Yes. DarijaDoc speeds up triage and booking, but the practice keeps validation when it matters.',
+        },
+        {
+          question: 'Can my secretary keep working the same way?',
+          answer: 'Yes. The tool structures requests and saves time without breaking useful habits.',
+        },
+        {
+          question: 'Does it only work for one doctor?',
+          answer: 'No. It can be organized by doctor, city, specialty, or availability model.',
+        },
+        {
+          question: 'How does demo scheduling work?',
+          answer: 'The flow offers available slots with a Calendly-like interaction, then confirms the selected time.',
+        },
+        {
+          question: 'What does admin see compared to a doctor?',
+          answer: 'Admin manages users and permissions. Doctors see clinical activity, not account management.',
+        },
+        {
+          question: 'Can I connect my calendar?',
+          answer: 'Yes. The Google Calendar integration is designed to sync real availability.',
+        },
+        {
+          question: 'How long until we are live?',
+          answer: 'Usually a few days are enough to shape the flow, roles, and available slots.',
+        },
+        {
+          question: 'Can the tone be adapted to my specialty?',
+          answer: 'Yes. Messages, common questions, and flow logic can be adjusted to your practice.',
+        },
       ],
     },
-    contact: {
-      eyebrow: 'Request a demo',
-      title: 'Prepare the clinic setup before the demo.',
-      description:
-        'Share the essential information so the demonstration matches your real operating model.',
+    demo: {
+      eyebrow: 'Schedule a demo',
+      title: 'Pick a time that fits your practice.',
+      description: 'Share a few useful details, choose a date, then select an available time slot.',
       labels: {
-        clinicName: 'Clinic name',
-        doctorFullName: 'Doctor full name',
-        doctorPhone: 'Doctor phone number',
-        officePhone: 'Clinic or secretary landline',
-        address: 'Clinic address',
-        weekdayHours: 'Availability from Monday to Thursday',
-        fridayHours: 'Availability on Friday',
-        saturdayHours: 'Availability on Saturday',
+        fullName: 'Full name',
+        specialty: 'Specialty',
+        city: 'City',
+        phone: 'Phone',
+        email: 'Email',
+        date: 'Date',
+        time: 'Time',
       },
       placeholders: {
-        clinicName: 'Dr El Idrissi Clinic',
-        doctorFullName: 'Dr Salma El Idrissi',
-        doctorPhone: '+212 6 12 34 56 78',
-        officePhone: '+212 5 22 00 00 00',
-        address: 'Hay Riad, Rabat',
-        weekdayHours: '09:00 - 13:00 / 15:00 - 19:00',
-        fridayHours: '09:00 - 12:30 / 15:30 - 18:30',
-        saturdayHours: '09:00 - 13:00',
+        fullName: 'Dr Sarah El Idrissi',
+        specialty: 'General medicine',
+        city: 'Rabat',
+        phone: '+212 6 12 34 56 78',
+        email: 'sarah@practice.ma',
       },
-      securityTitle: 'Cleaner base, stronger structure, more senior execution.',
-      securityPoints: [
-        'Simplified content hierarchy to remove the AI-slop feel.',
-        'Clearer components, better section separation, and consistent CTA logic.',
-        'A more self-contained base that behaves better in local and restricted environments.',
+      helper: 'The visible slots simulate a Calendly-style demo booking flow.',
+      submit: 'Confirm demo',
+      success: 'Saved. The selected time slot is now reserved for the demo.',
+    },
+    closing: {
+      title: 'A useful demo is better than a long promise.',
+      description: 'Choose a time slot and see the patient flow, roles, and dashboard that fit your clinic.',
+      primaryCta: 'Schedule a demo',
+      secondaryCta: 'Sign In',
+    },
+    footer: {
+      tagline: 'DarijaDoc simplifies patient communication on WhatsApp without losing the logic of the practice.',
+      productTitle: 'Product',
+      productLinks: [
+        { label: 'Flow', href: '#workflow' },
+        { label: 'Access', href: '#access' },
+        { label: 'Questions', href: '#faq' },
       ],
-      submit: 'Send request',
-      submitSuccess: 'Request recorded successfully. The demo can now be prepared on a clear basis.',
-      secondaryContact: 'Call now',
+      companyTitle: 'Company',
+      companyLinks: [
+        { label: 'Contact', href: '/en/contact' },
+        { label: 'Privacy', href: '/en/privacy' },
+        { label: 'Join', href: '/en/join' },
+      ],
+      resourcesTitle: 'Resources',
+      resourceLinks: [
+        { label: 'FAQ', href: '/en/faq' },
+        { label: 'Sign In', href: '/en/auth' },
+        { label: 'Demo', href: '#demo' },
+      ],
     },
     chat: {
-      tag: 'WhatsApp demo',
-      title: 'A clearer exchange between patient and clinic.',
-      subtitle:
-        'The request is understood, routed, and confirmed without friction. The demo focuses on clarity rather than visual noise.',
-      secure: 'Encrypted messages and controlled flow.',
+      secure: 'Encrypted conversation and guided flow.',
       input: 'Your message',
-      online: 'online',
+      online: 'Online',
       messages: [
-        { id: 1, sender: 'them', text: 'Hello, could you describe your symptoms and your area?', time: '10:42 AM' },
-        { id: 2, sender: 'me', text: 'Fever and a sore throat. I am in Hay Riad.', time: '10:44 AM' },
-        { id: 3, sender: 'them', text: 'Dr Yassine is available today at 5:30 PM. Would you like to confirm?', time: '10:45 AM' },
-        { id: 4, sender: 'me', text: 'Yes, I confirm the appointment.', time: '10:46 AM' },
-        { id: 5, sender: 'them', text: 'Perfect. You will also receive an automatic reminder before the consultation.', time: '10:47 AM' },
+        { id: 1, sender: 'them', text: 'Hello, which doctor would you like to see?', time: '10:42 AM' },
+        { id: 2, sender: 'me', text: 'A general physician, ideally late afternoon.', time: '10:43 AM' },
+        { id: 3, sender: 'them', text: 'Dr Sarah has an opening on Thursday at 6:00 PM. Should I reserve it?', time: '10:44 AM' },
+        { id: 4, sender: 'me', text: 'Yes, please confirm it.', time: '10:45 AM' },
+        { id: 5, sender: 'them', text: 'Perfect. You will receive an automatic reminder before the visit.', time: '10:46 AM' },
       ],
     },
   },
   ar: {
     nav: {
-      features: 'طريقة العمل',
-      pricing: 'العرض',
-      faq: 'الأسئلة',
-      contact: 'الديمو',
-      cta: 'اطلب عرضًا تجريبيًا',
+      workflow: 'المسار',
+      access: 'الوصول',
+      faq: 'الاسئلة',
+      demo: 'الديمو',
+      signIn: 'تسجيل الدخول',
+      cta: 'احجز ديمو',
     },
     hero: {
-      badge: 'أتمتة واتساب مصممة للعيادات الطبية',
-      title: ['تجربة المريض', 'أوضح،', 'من أول رسالة.'],
-      description:
-        'DarijaDoc يحول طلبات واتساب إلى مواعيد مؤكدة عبر مسار أكثر سلاسة ومصداقية وطمأنينة للمريض وللعيادة معًا.',
-      primaryCta: 'شاهد الديمو',
-      secondaryCta: 'شاهد العرض الكامل',
-      stats: [
-        ['100% WhatsApp', 'من دون مسار معقد أو تطبيق إضافي'],
-        ['3 إلى 7 أيام', 'لإطلاق مسار واضح وجاهز للعمل'],
-        ['تحكم العيادة', 'اعتماد بشري في الحالات الحساسة'],
-      ],
-      proofTitle: 'ما الذي يلاحظه المريض مباشرة',
-      proofList: [
-        'استجابة أسرع وأكثر وضوحًا',
-        'صورة عيادة أكثر تنظيمًا وطمأنينة',
-        'موعد مؤكد من دون ارتباك',
+      badge: 'مساعد واتساب للعيادات الطبية',
+      title: 'حجز اوضح للمريض وتنظيم ابسط للعيادة.',
+      description: 'DarijaDoc يفهم الطلب، يقترح الموعد المناسب، ويحافظ على تدخل بشري عند الحاجة.',
+      primaryCta: 'احجز ديمو',
+      secondaryCta: 'تسجيل الدخول',
+      points: [
+        'مسار واتساب مألوف للمريض',
+        'لوحة مختلفة حسب الدور',
+        'تشغيل سريع بدون تعقيد',
       ],
     },
-    impact: {
-      eyebrow: 'لماذا ينجح',
-      title: 'واجهة أكثر مهنية وهدوءًا وأقرب إلى الثقة.',
-      description:
-        'يجب أن يمنح الموقع إحساسًا بالثقة قبل أن يحاول إبهار الزائر. البنية والنبرة والإيقاع تجعل الوعد أكثر جدية.',
-      cards: [
+    highlights: {
+      items: [
         {
-          title: 'استجابة فورية',
-          description:
-            'يشعر المريض سريعًا بأن العيادة متاحة ومنظمة وقادرة على المتابعة.',
+          title: 'رسائل اقل',
+          description: 'يتم ضبط الطلبات المتكررة من اول محادثة.',
         },
         {
-          title: 'توجيه واضح',
-          description:
-            'يظهر الطبيب المناسب أو الموعد المناسب من دون غموض غير لازم.',
+          title: 'طابع طبي اهدأ',
+          description: 'الواجهة اقرب لاداة عيادة من صفحة تقنية مبالغ فيها.',
         },
         {
-          title: 'متابعة مطمئنة',
-          description:
-            'تستمر المحادثة برسائل تأكيد وتذكير منسجمة وواضحة.',
+          title: 'العيادة ما زالت تتحكم',
+          description: 'الحالات الحساسة يمكن تاكيدها من الفريق.',
         },
       ],
     },
-    system: {
-      eyebrow: 'هيكلة المنتج',
-      title: 'عرض مبني كخدمة مهنية، لا كصفحة دعائية.',
-      description:
-        'كل قسم يجيب عن سؤال واضح: ما هو المنتج، ماذا يشعر المريض، كيف تبقى العيادة ممسكة بالخيط، وكيف يتم الإعداد.',
-      cards: [
-        {
-          title: 'وعد واضح',
-          description:
-            'الرسالة الرئيسية أصبحت أقصر وأوضح وأسهل قراءة على الهاتف.',
-        },
-        {
-          title: 'أدلة مفيدة',
-          description:
-            'إشارات الثقة ظاهرة من دون مبالغة تسويقية.',
-        },
-        {
-          title: 'هرمية أنظف',
-          description:
-            'تم تبسيط الكتل الثانوية للحفاظ على التركيز على المهم.',
-        },
-        {
-          title: 'مسار منسجم',
-          description:
-            'زر الإجراء والديمو وطلب الإعداد كلها تتحرك ضمن منطق واحد.',
-        },
-      ],
-    },
-    process: {
+    workflow: {
       eyebrow: 'المسار',
-      title: 'بسيط للمريض وقابل للتحكم بالنسبة للعيادة.',
-      description:
-        'يجب أن يفهم الزائر بسرعة كيف تصل الرسالة، وكيف يتم التوجيه، ومتى يتم تأكيد الموعد بشكل آمن.',
+      title: 'ثلاث خطوات واضحة بدون ازدحام.',
       steps: [
-        ['01', 'المريض يرسل رسالة على واتساب', 'نقطة الدخول تبقى مألوفة ومن دون احتكاك.'],
-        ['02', 'يتم فهم الطلب وتوجيهه', 'الحاجة أو المنطقة أو الطبيب يتم تحديدها في بضع رسائل.'],
-        ['03', 'يتم تأكيد الموعد', 'يخرج المريض بمعلومة واضحة ويمكن الرجوع إليها.'],
+        {
+          id: '01',
+          title: 'المريض يرسل رسالة',
+          description: 'البداية تكون على واتساب بدون تطبيق اضافي.',
+        },
+        {
+          id: '02',
+          title: 'يتم فهم الطلب',
+          description: 'السبب والطبيب والتوفر والسياق تتوضح بسرعة.',
+        },
+        {
+          id: '03',
+          title: 'يتم ارسال المتابعة المناسبة',
+          description: 'يصل للمريض موعد مؤكد او تحويل لمتابعة بشرية.',
+        },
       ],
-      asideTitle: 'واجهة أكثر مهنية تعزز الثقة أيضًا.',
-      asideLabels: ['تأهيل', 'متابعة', 'اعتماد'],
     },
-    workspace: {
-      eyebrow: 'مساحات العمل',
-      title: 'واجهات مختلفة حسب الدور من دون كسر هوية المنتج.',
-      description:
-        'كل مساحة تحافظ على نفس الأساس البصري، لكنها تغيّر كثافة المعلومات والأولويات بما يناسب العمل اليومي الحقيقي.',
+    access: {
+      eyebrow: 'الوصول',
+      title: 'منتج واحد بثلاث واجهات حسب الدور.',
       cards: [
         {
           slug: 'doctor',
-          title: 'مساحة الطبيب',
-          description:
-            'الجدول، قائمة المرضى، ملاحظات الاستشارة والمتابعات المهمة داخل واجهة أكثر هدوءًا وتركيزًا.',
-          cta: 'فتح مساحة الطبيب',
-          bullets: ['جدول اليوم', 'مرضى بانتظار التأكيد', 'إجراءات سريرية'],
+          title: 'الطبيب',
+          description: 'الجدول، المرضى، الملاحظات، والنقاط التي تحتاج مراجعة.',
+          bullets: ['اليوم الطبي', 'ملفات المرضى', 'متابعة'],
+          cta: 'تسجيل الدخول',
         },
         {
           slug: 'secretary',
-          title: 'مساحة السكرتارية',
-          description:
-            'صندوق واتساب، التأكيدات، التذكيرات وتعديل المواعيد في واجهة سريعة التنفيذ.',
-          cta: 'فتح مساحة السكرتارية',
-          bullets: ['رسائل واردة', 'مواعيد تحتاج تعديلًا', 'تذكيرات معلقة'],
+          title: 'السكرتارية',
+          description: 'الطلبات، التذكيرات، التاكيدات، وتعديلات المواعيد.',
+          bullets: ['الرسائل', 'التذكيرات', 'المواعيد'],
+          cta: 'تسجيل الدخول',
         },
-        {
-          slug: 'admin',
-          title: 'مساحة الإدارة',
-          description:
-            'إدارة الحسابات والأدوار والأداء والحواجز التشغيلية داخل لوحة أكثر تحليلية.',
-          cta: 'فتح مساحة الإدارة',
-          bullets: ['الحسابات والأدوار', 'الأداء', 'الأمان'],
-        },
-      ],
-    },
-    testimonials: {
-      eyebrow: 'إشارات الثقة',
-      title: 'مؤشرات واضحة من دون تحميل الصفحة أكثر من اللازم.',
-      items: [
-        ['+41%', 'رسائل تحولت إلى مواعيد', 'المسار يقلل التردد بين أول طلب وتأكيد الموعد.'],
-        ['-28%', 'أخطاء في التوجيه', 'العيادة تبدو أكثر تنظيمًا لأن الفرز أصبح أوضح.'],
-        ['الأسبوع الأول', 'أثر ملموس', 'النبرة والوضوح والسرعة تغير الانطباع بسرعة.'],
-      ],
-    },
-    pricing: {
-      eyebrow: 'العرض',
-      title: 'عرض واضح من أول قراءة.',
-      description:
-        'قسم التسعير يجب أن يبقى بسيطًا: ما الذي يدخل في الباقة، ما الذي يتغير بعد الإطلاق، وما الذي تستلمه العيادة فعليًا.',
-      plan: 'الانطلاق',
-      price: '400 درهم',
-      period: '/ شهر في البداية',
-      threshold: '600 درهم بعد 30 مريضًا / شهر',
-      includedLabel: 'يشمل',
-      features: [
-        'مسار كامل لحجز المواعيد عبر واتساب',
-        'توجيه حسب الحاجة والأعراض والسياق',
-        'سيناريوهات مخصصة حسب الطبيب أو التخصص',
-        'إعداد وتشغيل وتحسين عند الانطلاق',
       ],
     },
     faq: {
-      eyebrow: 'الأسئلة الشائعة',
-      title: 'أهم الاعتراضات يتم التعامل معها مباشرة.',
+      eyebrow: 'الاسئلة',
+      title: 'الاسئلة التي يطرحها الطبيب قبل التجربة.',
       items: [
-        ['هل المنتج صوتي الآن؟', 'لا. القيمة الحالية مبنية على السرعة والوضوح وجودة تجربة واتساب.'],
-        ['هل يبقى السكرتاريا متحكمًا؟', 'نعم. DarijaDoc يساعد على التنظيم والتسريع، لكن الاعتماد النهائي يبقى للعيادة.'],
-        ['كم يلزم للإطلاق؟', 'غالبًا بين 3 و7 أيام لإطلاق نظيف ومنظم.'],
+        {
+          question: 'هل ابقى متحكما في المواعيد؟',
+          answer: 'نعم. DarijaDoc يسرع الفرز والحجز، لكن العيادة تحتفظ بالتأكيد عند الحاجة.',
+        },
+        {
+          question: 'هل يمكن للسكرتارية الاستمرار بطريقتها المعتادة؟',
+          answer: 'نعم. الاداة ترتب الطلبات وتوفر الوقت بدون كسر العادات المفيدة.',
+        },
+        {
+          question: 'هل يصلح لطبيب واحد فقط؟',
+          answer: 'لا. يمكن تنظيمه حسب الطبيب او المدينة او التخصص او التوفر.',
+        },
+        {
+          question: 'كيف يتم حجز الديمو؟',
+          answer: 'يتم عرض مواعيد متاحة بطريقة قريبة من Calendly ثم تاكيد الموعد المختار.',
+        },
+        {
+          question: 'ماذا يرى الادمن مقارنة بالطبيب؟',
+          answer: 'الادمن يدير المستخدمين والصلاحيات، بينما الطبيب يرى نشاطه السريري فقط.',
+        },
+        {
+          question: 'هل يمكن ربط التقويم؟',
+          answer: 'نعم. التكامل مع Google Calendar موجود لمزامنة التوفر الحقيقي.',
+        },
+        {
+          question: 'كم يلزم من الوقت للتشغيل؟',
+          answer: 'غالبا تكفي بضعة ايام لضبط المسار والادوار والمواعيد.',
+        },
+        {
+          question: 'هل يمكن تعديل اسلوب الرسائل حسب التخصص؟',
+          answer: 'نعم. يمكن تكييف الرسائل والاسئلة والمنطق مع طبيعة العيادة.',
+        },
       ],
     },
-    contact: {
-      eyebrow: 'اطلب ديمو',
-      title: 'هيئ إطار العيادة قبل العرض.',
-      description:
-        'شارك المعلومات الأساسية لكي تكون التجربة معروضة بطريقة مطابقة لتنظيمك الحقيقي.',
+    demo: {
+      eyebrow: 'احجز ديمو',
+      title: 'اختر موعدا يناسب عيادتك.',
+      description: 'شارك بعض المعلومات المهمة ثم اختر التاريخ والساعة المناسبة.',
       labels: {
-        clinicName: 'اسم العيادة',
-        doctorFullName: 'اسم الطبيب الكامل',
-        doctorPhone: 'رقم هاتف الطبيب',
-        officePhone: 'رقم العيادة أو السكرتارية',
-        address: 'عنوان العيادة',
-        weekdayHours: 'التوفر من الاثنين إلى الخميس',
-        fridayHours: 'التوفر يوم الجمعة',
-        saturdayHours: 'التوفر يوم السبت',
+        fullName: 'الاسم الكامل',
+        specialty: 'التخصص',
+        city: 'المدينة',
+        phone: 'الهاتف',
+        email: 'البريد الالكتروني',
+        date: 'التاريخ',
+        time: 'الساعة',
       },
       placeholders: {
-        clinicName: 'عيادة الدكتور الإدريسي',
-        doctorFullName: 'د. سلمى الإدريسي',
-        doctorPhone: '+212 6 12 34 56 78',
-        officePhone: '+212 5 22 00 00 00',
-        address: 'حي الرياض، الرباط',
-        weekdayHours: '09:00 - 13:00 / 15:00 - 19:00',
-        fridayHours: '09:00 - 12:30 / 15:30 - 18:30',
-        saturdayHours: '09:00 - 13:00',
+        fullName: 'د. سلمى الادريسي',
+        specialty: 'طب عام',
+        city: 'الرباط',
+        phone: '+212 6 12 34 56 78',
+        email: 'salma@cabinet.ma',
       },
-      securityTitle: 'قاعدة أنظف وأصلب وأكثر نضجًا.',
-      securityPoints: [
-        'هرمية المحتوى أصبحت أبسط لتفادي الإحساس المصطنع أو المبالغ فيه.',
-        'المكونات أوضح، والأقسام مفصولة بشكل أفضل، ونداءات الإجراء منسجمة.',
-        'القاعدة أصبحت أكثر استقلالية وتعمل بشكل أفضل في البيئات المقيدة محليًا.',
+      helper: 'المواعيد المعروضة تحاكي حجز ديمو بنمط قريب من Calendly.',
+      submit: 'تأكيد الديمو',
+      success: 'تم حفظ الطلب. الموعد المختار اصبح محجوزا للديمو.',
+    },
+    closing: {
+      title: 'ديمو واضح افضل من وعد طويل.',
+      description: 'اختر موعدا وشاهد المسار والادوار والواجهة المناسبة لعيادتك.',
+      primaryCta: 'احجز ديمو',
+      secondaryCta: 'تسجيل الدخول',
+    },
+    footer: {
+      tagline: 'DarijaDoc يبسط تواصل المريض على واتساب بدون فقدان منطق العيادة.',
+      productTitle: 'المنتج',
+      productLinks: [
+        { label: 'المسار', href: '#workflow' },
+        { label: 'الوصول', href: '#access' },
+        { label: 'الاسئلة', href: '#faq' },
       ],
-      submit: 'إرسال الطلب',
-      submitSuccess: 'تم تسجيل الطلب بنجاح. يمكن الآن تحضير الديمو على أساس واضح.',
-      secondaryContact: 'اتصل الآن',
+      companyTitle: 'الشركة',
+      companyLinks: [
+        { label: 'اتصل بنا', href: '/ar/contact' },
+        { label: 'الخصوصية', href: '/ar/privacy' },
+        { label: 'انضم', href: '/ar/join' },
+      ],
+      resourcesTitle: 'الموارد',
+      resourceLinks: [
+        { label: 'الاسئلة', href: '/ar/faq' },
+        { label: 'تسجيل الدخول', href: '/ar/auth' },
+        { label: 'الديمو', href: '#demo' },
+      ],
     },
     chat: {
-      tag: 'عرض واتساب',
-      title: 'محادثة أوضح بين المريض والعيادة.',
-      subtitle:
-        'يتم فهم الطلب وتوجيهه ثم تأكيده من دون تعقيد. الفكرة هنا هي الوضوح قبل أي شيء آخر.',
-      secure: 'رسائل مشفرة ومسار مضبوط.',
+      secure: 'محادثة مشفرة ومسار واضح.',
       input: 'رسالتك',
-      online: 'متصل الآن',
+      online: 'متصل الان',
       messages: [
-        { id: 1, sender: 'them', text: 'مرحبًا، هل يمكن توضيح الأعراض والحي الذي تتواجد فيه؟', time: '10:42' },
-        { id: 2, sender: 'me', text: 'حمى وألم في الحلق، وأنا في حي الرياض.', time: '10:44' },
-        { id: 3, sender: 'them', text: 'الدكتور ياسين متاح اليوم على الساعة 17:30. هل تريد تأكيد الموعد؟', time: '10:45' },
-        { id: 4, sender: 'me', text: 'نعم، أؤكد الموعد.', time: '10:46' },
-        { id: 5, sender: 'them', text: 'ممتاز. ستصلك أيضًا رسالة تذكير تلقائية قبل الزيارة.', time: '10:47' },
+        { id: 1, sender: 'them', text: 'مرحبا، مع اي طبيب تود الحجز؟', time: '10:42' },
+        { id: 2, sender: 'me', text: 'مع طبيب عام ويفضل اخر النهار.', time: '10:43' },
+        { id: 3, sender: 'them', text: 'الدكتورة سلمى متاحة الخميس على 18:00. هل اؤكد الموعد؟', time: '10:44' },
+        { id: 4, sender: 'me', text: 'نعم، اكد الموعد.', time: '10:45' },
+        { id: 5, sender: 'them', text: 'ممتاز. ستصلك رسالة تذكير قبل الموعد.', time: '10:46' },
       ],
     },
   },

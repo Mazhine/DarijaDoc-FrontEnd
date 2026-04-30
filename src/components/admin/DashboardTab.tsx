@@ -1,10 +1,11 @@
 ﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
-import { Users, Calendar, TrendingUp, Activity, CheckCircle2, Clock, Phone, Shield, BarChart2 } from "lucide-react";
+import { Users, Calendar, TrendingUp, Activity, CheckCircle2, Clock, Phone, Shield, BarChart2, Stethoscope, KeyRound, CreditCard } from "lucide-react";
 import { motion } from "framer-motion";
+import { getSeededTeam, type TeamMember } from "@/src/lib/team";
 
 const DASHBOARD_T: Record<string, any> = {
     en: {
@@ -15,14 +16,13 @@ const DASHBOARD_T: Record<string, any> = {
         whatsapp: "WhatsApp Bookings",
         sec: "Secretary Bookings",
         today: "today",
-        analysis: "Live Busy Days Analysis",
-        insight: "Insight:",
-        insightTxt1: "currently holds the heaviest traffic this month according to real Google Calendar data. Consider unlocking extra time slots for",
-        insightTxt2: "s.",
         latest: "Latest Calendar Updates",
-        by: "By:",
         revenue: "Revenue (This Month)",
         bookings: "Total Bookings",
+        recentPatients: "Recent Patients",
+        calendarTitle: "Calendar Snapshot",
+        performanceTitle: "Revenue & Performance Analysis",
+        noActivity: "No recent calendar activity yet.",
         days: { "Monday": "Monday", "Tuesday": "Tuesday", "Wednesday": "Wednesday", "Thursday": "Thursday", "Friday": "Friday", "Saturday": "Saturday" }
     },
     fr: {
@@ -33,33 +33,31 @@ const DASHBOARD_T: Record<string, any> = {
         whatsapp: "Réservations WhatsApp",
         sec: "Réservations Secrétariat",
         today: "ajd",
-        analysis: "Analyse des Jours Chargés",
-        insight: "Aperçu :",
-        insightTxt1: "est le jour le plus chargé ce mois-ci selon les données Google Agenda. Envisagez d'ouvrir des créneaux pour les",
-        insightTxt2: "s.",
         latest: "Dernières Mises à Jour du Calendrier",
-        by: "Par :",
         revenue: "Revenus (Ce Mois)",
         bookings: "Total Réservations",
+        recentPatients: "Patients récents",
+        calendarTitle: "Aperçu du calendrier",
+        performanceTitle: "Analyse revenus & activité",
+        noActivity: "Aucune activité récente du calendrier.",
         days: { "Monday": "Lundi", "Tuesday": "Mardi", "Wednesday": "Mercredi", "Thursday": "Jeudi", "Friday": "Vendredi", "Saturday": "Samedi" }
     },
     ar: {
-        title: "???? ???? ??? ???? ???????",
-        subtitle: "???????? ?????? ??????? ?? ????? ????.",
-        totalPat: "?????? ??????",
-        appMonth: "?????? ??? ?????",
-        whatsapp: "?????? ??????",
-        sec: "?????? ??????????",
-        today: "?????",
-        analysis: "????? ?????? ????????",
-        insight: "????:",
-        insightTxt1: "????? ?????? ??? ???? ??? ?? ???????? ??? ?????. ??? ?? ??? ????? ????? ?????? ?????",
-        insightTxt2: ".",
-        latest: "???? ??????? ???????",
-        by: "??????:",
-        revenue: "????????? (??? ?????)",
-        bookings: "?????? ????????",
-        days: { "Monday": "???????", "Tuesday": "????????", "Wednesday": "????????", "Thursday": "??????", "Friday": "??????", "Saturday": "?????" }
+        title: "نظرة عامة على لوحة التحكم",
+        subtitle: "مؤشرات مباشرة مرتبطة بتقويم Google الخاص بالعيادة.",
+        totalPat: "إجمالي المرضى",
+        appMonth: "مواعيد هذا الشهر",
+        whatsapp: "حجوزات واتساب",
+        sec: "حجوزات السكرتارية",
+        today: "اليوم",
+        latest: "آخر تحديثات التقويم",
+        revenue: "المداخيل هذا الشهر",
+        bookings: "إجمالي الحجوزات",
+        recentPatients: "المرضى الجدد",
+        calendarTitle: "ملخص التقويم",
+        performanceTitle: "تحليل الأداء والمداخيل",
+        noActivity: "لا توجد تحديثات حديثة في التقويم.",
+        days: { "Monday": "الاثنين", "Tuesday": "الثلاثاء", "Wednesday": "الأربعاء", "Thursday": "الخميس", "Friday": "الجمعة", "Saturday": "السبت" }
     }
 };
 
@@ -68,7 +66,7 @@ const StatCard = ({ stat, delay }: { stat: any, delay: number }) => (
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay }}
-        className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
+        className="premium-panel flex h-full flex-col rounded-[28px] p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
     >
         <div className="flex justify-between items-start mb-4">
             <div className={`p-3 rounded-xl ${stat.bg}`}>
@@ -78,8 +76,8 @@ const StatCard = ({ stat, delay }: { stat: any, delay: number }) => (
                 {stat.change}
             </span>
         </div>
-        <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{stat.value}</h3>
-        <p className="text-gray-500 text-sm font-medium">{stat.label}</p>
+        <h3 className="mb-1 text-3xl font-bold text-slate-950 dark:text-white">{stat.value}</h3>
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{stat.label}</p>
         
         {/* Sparkline Chart */}
         <div className="mt-auto pt-6 h-12 flex items-end gap-1 opacity-80">
@@ -94,6 +92,41 @@ export default function DashboardTab() {
     const pathname = usePathname();
     const currentLocale = pathname?.split('/')[1] || 'en';
     const t = DASHBOARD_T[currentLocale] || DASHBOARD_T['en'];
+    const isArabic = currentLocale === 'ar';
+    const currentRole = typeof window !== 'undefined' ? sessionStorage.getItem('adminRole') || 'Admin' : 'Admin';
+    const adminCopy = {
+        title: currentLocale === 'fr' ? 'Centre de pilotage admin' : isArabic ? 'مركز تحكم الادمن' : 'Admin Control Center',
+        subtitle: currentLocale === 'fr' ? 'Vue globale des medecins, des secretaires, des acces et des abonnements.' : isArabic ? 'رؤية شاملة للاطباء والسكرتيرات والصلاحيات والاشتراكات.' : 'Global view of doctors, secretaries, access levels, and subscriptions.',
+        doctors: currentLocale === 'fr' ? 'Medecins' : isArabic ? 'الاطباء' : 'Doctors',
+        secretaries: currentLocale === 'fr' ? 'Secretaires' : isArabic ? 'السكرتيرات' : 'Secretaries',
+        activeSubscriptions: currentLocale === 'fr' ? 'Abonnements actifs' : isArabic ? 'الاشتراكات النشطة' : 'Active subscriptions',
+        credentialsReady: currentLocale === 'fr' ? 'Identifiants prets' : isArabic ? 'الحسابات الجاهزة' : 'Credentials ready',
+        doctorsAndSecretaries: currentLocale === 'fr' ? 'Medecins et secretaires' : isArabic ? 'الاطباء والسكرتيرات' : 'Doctors & secretaries',
+        attachedSecretaries: currentLocale === 'fr' ? 'secretaire(s) rattachee(s)' : isArabic ? 'سكرتيرات مرتبطات' : 'attached secretaries',
+        credentials: currentLocale === 'fr' ? 'Identifiants' : isArabic ? 'بيانات الدخول' : 'Credentials',
+        noSecretary: currentLocale === 'fr' ? 'Aucune secretaire rattachee pour l instant.' : isArabic ? 'لا توجد سكرتيرة مرتبطة حاليا.' : 'No attached secretary for now.',
+        subscriptionHealth: currentLocale === 'fr' ? 'Etat des abonnements' : isArabic ? 'حالة الاشتراكات' : 'Subscription health',
+        adminNotes: currentLocale === 'fr' ? 'Notes admin' : isArabic ? 'ملاحظات الادمن' : 'Admin notes',
+        note1: currentLocale === 'fr' ? 'Le bouton deconnexion reste dans la barre laterale pour garder la logique du projet.' : isArabic ? 'زر تسجيل الخروج بقي في الشريط الجانبي حتى تظل منطقية المشروع واضحة.' : 'The sign-out button stays in the sidebar to match the project structure.',
+        note2: currentLocale === 'fr' ? 'Toutes les secretaires ont maintenant acces au calendrier et aux clients.' : isArabic ? 'كل السكرتيرات لديهن الآن وصول للتقويم والعملاء.' : 'All secretaries now have access to the calendar and clients.',
+        note3: currentLocale === 'fr' ? 'Les identifiants sont visibles ici uniquement pour la demo admin.' : isArabic ? 'بيانات الدخول ظاهرة هنا فقط داخل نسخة العرض الخاصة بالادمن.' : 'Credentials are shown here only for the admin demo.',
+        name: currentLocale === 'fr' ? 'Nom' : isArabic ? 'الاسم' : 'Name',
+        wardId: currentLocale === 'fr' ? 'Ref/ID' : isArabic ? 'المرجع/المعرف' : 'Ward/ID',
+        priority: currentLocale === 'fr' ? 'Priorite' : isArabic ? 'الاولوية' : 'Priority',
+        startDate: currentLocale === 'fr' ? 'Date' : isArabic ? 'التاريخ' : 'Start Date',
+        actions: currentLocale === 'fr' ? 'Actions' : isArabic ? 'الإجراءات' : 'Actions',
+        view: currentLocale === 'fr' ? 'Voir' : isArabic ? 'عرض' : 'View',
+    };
+    const priorityLabels: Record<string, string> = {
+        High: currentLocale === 'fr' ? 'Haute' : isArabic ? 'مرتفعة' : 'High',
+        Medium: currentLocale === 'fr' ? 'Moyenne' : isArabic ? 'متوسطة' : 'Medium',
+        Low: currentLocale === 'fr' ? 'Faible' : isArabic ? 'منخفضة' : 'Low',
+    };
+    const subscriptionLabels: Record<string, string> = {
+        Active: currentLocale === 'fr' ? 'Actif' : isArabic ? 'نشط' : 'Active',
+        Trial: currentLocale === 'fr' ? 'Essai' : isArabic ? 'تجريبي' : 'Trial',
+        'Past Due': currentLocale === 'fr' ? 'En retard' : isArabic ? 'متاخر' : 'Past Due',
+    };
     const [statsData, setStatsData] = useState({
         patients: 1253,
         appointmentsMonth: 20,
@@ -122,6 +155,11 @@ export default function DashboardTab() {
     
     const [busyDays, setBusyDays] = useState(defaultBusyDays);
     const [mostBusyDay, setMostBusyDay] = useState("Monday");
+    const [team, setTeam] = useState<TeamMember[]>([]);
+
+    useEffect(() => {
+        setTeam(getSeededTeam());
+    }, []);
 
     useEffect(() => {
         let pCount = 1253;
@@ -166,7 +204,7 @@ export default function DashboardTab() {
                     let whatsappCount = 0;
                     let secretaryCount = 0;
                     events.forEach((e: any) => {
-                        if (e.description && e.description.includes("AdminHub")) {
+                        if (e.description && /AdminHub|DarijaDoc|Patients Tab/i.test(e.description)) {
                             secretaryCount++;
                         } else {
                             whatsappCount++;
@@ -231,7 +269,7 @@ export default function DashboardTab() {
                                 details: `${e.type}: ${e.name.substring(0, 20)}`,
                                 time: timeStr,
                                 icon: Calendar,
-                                color: "text-blue-500"
+                                color: "text-[#12695b]"
                             };
                         });
                         setAuditLog(prev => [...realLog]);
@@ -243,8 +281,8 @@ export default function DashboardTab() {
     }, []);
 
     const stats = [
-        { id: 1, label: t.totalPat, value: `${statsData.patients}`, change: "+12%", icon: Users, color: "text-blue-600", bg: "bg-blue-100 dark:bg-blue-900/30", chartColor: "bg-blue-200 dark:bg-blue-800", sparkline: [40, 50, 45, 60, 75, 80, 100] },
-        { id: 2, label: t.appMonth, value: `${statsData.appointmentsMonth}`, change: `+${statsData.appointmentsToday} ${t.today}`, icon: Calendar, color: "text-purple-600", bg: "bg-purple-100 dark:bg-purple-900/30", chartColor: "bg-purple-200 dark:bg-purple-800", sparkline: [20, 40, 35, 50, 45, 70, 85] },
+        { id: 1, label: t.totalPat, value: `${statsData.patients}`, change: "+12%", icon: Users, color: "text-[#12695b]", bg: "bg-[#eff8f5] dark:bg-emerald-900/30", chartColor: "bg-[#cdeae2] dark:bg-emerald-800", sparkline: [40, 50, 45, 60, 75, 80, 100] },
+        { id: 2, label: t.appMonth, value: `${statsData.appointmentsMonth}`, change: `+${statsData.appointmentsToday} ${t.today}`, icon: Calendar, color: "text-[#3c7a70]", bg: "bg-[#eef3f7] dark:bg-cyan-900/30", chartColor: "bg-[#d7e7ef] dark:bg-cyan-800", sparkline: [20, 40, 35, 50, 45, 70, 85] },
         { id: 3, label: t.bookings || "Total Bookings", value: `${statsData.whatsapp + statsData.secretary}`, change: "+5%", icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-100 dark:bg-emerald-900/30", chartColor: "bg-emerald-200 dark:bg-emerald-800", sparkline: [60, 55, 65, 80, 70, 90, 100] },
     ];
 
@@ -257,12 +295,131 @@ export default function DashboardTab() {
 
     const calendarDays = Array.from({length: 30}, (_, i) => i + 1);
 
+    const adminDoctors = useMemo(() => team.filter((member) => member.role === 'Doctor'), [team]);
+    const adminSecretaries = useMemo(() => team.filter((member) => member.role === 'Secretary'), [team]);
+
+    if (currentRole === 'Admin') {
+        return (
+            <div className="space-y-6">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                    <div>
+                        <h2 className="text-2xl font-bold text-slate-950 dark:text-white">{adminCopy.title}</h2>
+                        <p className="mt-1 text-slate-500 dark:text-slate-400">
+                            {adminCopy.subtitle}
+                        </p>
+                    </div>
+                    <div className="premium-panel inline-flex items-center gap-2 rounded-2xl px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
+                        <Shield className="h-4 w-4 text-[#12695b]" />
+                        {adminDoctors.length} {adminCopy.doctors.toLowerCase()} • {adminSecretaries.length} {adminCopy.secretaries.toLowerCase()}
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+                    <StatCard stat={{ id: 1, label: adminCopy.doctors, value: `${adminDoctors.length}`, change: "+0%", icon: Stethoscope, color: "text-[#12695b]", bg: "bg-[#eff8f5]", chartColor: "bg-[#cdeae2]", sparkline: [50, 60, 65, 60, 75, 75, 80] }} delay={0} />
+                    <StatCard stat={{ id: 2, label: adminCopy.secretaries, value: `${adminSecretaries.length}`, change: "+0%", icon: Users, color: "text-[#3c7a70]", bg: "bg-[#eef3f7]", chartColor: "bg-[#d7e7ef]", sparkline: [20, 35, 50, 45, 65, 75, 85] }} delay={0.1} />
+                    <StatCard stat={{ id: 3, label: adminCopy.activeSubscriptions, value: `${adminDoctors.filter((member) => member.subscriptionStatus !== 'Past Due').length}`, change: "+0%", icon: CreditCard, color: "text-emerald-600", bg: "bg-emerald-100", chartColor: "bg-emerald-200", sparkline: [80, 75, 85, 85, 90, 90, 100] }} delay={0.2} />
+                    <StatCard stat={{ id: 4, label: adminCopy.credentialsReady, value: `${team.filter((member) => !member.mustResetCredentials).length}`, change: "+0%", icon: KeyRound, color: "text-amber-600", bg: "bg-amber-100", chartColor: "bg-amber-200", sparkline: [45, 55, 60, 72, 74, 78, 88] }} delay={0.3} />
+                </div>
+
+                <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1.4fr_0.6fr]">
+                    <div className="premium-panel rounded-[28px] p-6">
+                        <div className="mb-6 flex items-center gap-2">
+                            <Stethoscope className="h-5 w-5 text-[#12695b]" />
+                            <h3 className="text-lg font-bold text-slate-950 dark:text-white">{adminCopy.doctorsAndSecretaries}</h3>
+                        </div>
+                        <div className="space-y-4">
+                            {adminDoctors.map((doctor) => {
+                                const doctorSecretaries = adminSecretaries.filter((member) => member.ownerDoctorEmail?.toLowerCase() === doctor.email.toLowerCase());
+                                return (
+                                    <div key={doctor.id} className="rounded-[24px] border border-slate-200 bg-[linear-gradient(135deg,rgba(248,250,252,0.95),rgba(239,248,245,0.85))] p-5 dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(159,231,212,0.05))]">
+                                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <h4 className="text-lg font-bold text-slate-950 dark:text-white">{doctor.name}</h4>
+                                                    <span className={`rounded-full px-3 py-1 text-xs font-bold ${
+                                                        doctor.subscriptionStatus === 'Past Due'
+                                                            ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                                                            : doctor.subscriptionStatus === 'Trial'
+                                                                ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                                                                : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                                    }`}>
+                                                        {subscriptionLabels[doctor.subscriptionStatus || 'Trial']}
+                                                    </span>
+                                                </div>
+                                                <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-500 dark:text-slate-400">
+                                                    <span className="inline-flex items-center gap-1"><Phone className="h-4 w-4" /> {doctor.email}</span>
+                                                    <span className="inline-flex items-center gap-1"><Shield className="h-4 w-4" /> {doctor.access}</span>
+                                                    <span className="inline-flex items-center gap-1"><KeyRound className="h-4 w-4" /> {doctor.password}</span>
+                                                </div>
+                                            </div>
+                                            <div className="rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-sm dark:border-white/10 dark:bg-[#08111d] dark:text-slate-300">
+                                                {doctorSecretaries.length} {adminCopy.attachedSecretaries}
+                                            </div>
+                                        </div>
+                                        <div className="mt-4 grid gap-3 md:grid-cols-2">
+                                            {doctorSecretaries.map((secretary) => (
+                                                <div key={secretary.id} className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm dark:border-white/10 dark:bg-[#08111d]">
+                                                    <div className="flex items-center justify-between gap-3">
+                                                        <div>
+                                                            <div className="font-semibold text-slate-950 dark:text-white">{secretary.name}</div>
+                                                            <div className="mt-1 text-sm text-slate-500 dark:text-slate-400">{secretary.email}</div>
+                                                        </div>
+                                                        <span className="rounded-full bg-[#eff8f5] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#12695b] dark:bg-[#9fe7d4]/12 dark:text-[#9fe7d4]">
+                                                            {secretary.access}
+                                                        </span>
+                                                    </div>
+                                                    <div className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                                                        {adminCopy.credentials}: {secretary.password}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            {doctorSecretaries.length === 0 ? (
+                                                <div className="rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-white/10 dark:text-slate-400">
+                                                    {adminCopy.noSecretary}
+                                                </div>
+                                            ) : null}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="premium-panel rounded-[28px] p-6">
+                            <h3 className="text-lg font-bold text-slate-950 dark:text-white">{adminCopy.subscriptionHealth}</h3>
+                            <div className="mt-4 space-y-3">
+                                {['Active', 'Trial', 'Past Due'].map((status) => (
+                                    <div key={status} className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 dark:bg-white/5">
+                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{subscriptionLabels[status]}</span>
+                                        <span className="text-sm font-bold text-slate-950 dark:text-white">
+                                            {adminDoctors.filter((member) => (member.subscriptionStatus || 'Trial') === status).length}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="premium-panel rounded-[28px] p-6">
+                            <h3 className="text-lg font-bold text-slate-950 dark:text-white">{adminCopy.adminNotes}</h3>
+                            <div className="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-300">
+                                <div className="rounded-2xl bg-[#eff8f5] px-4 py-3 dark:bg-[#9fe7d4]/12">{adminCopy.note1}</div>
+                                <div className="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-white/5">{adminCopy.note2}</div>
+                                <div className="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-white/5">{adminCopy.note3}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-end">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t.title}</h2>
-                    <p className="text-gray-500 mt-1">{t.subtitle}</p>
+                    <h2 className="text-2xl font-bold text-slate-950 dark:text-white">{t.title}</h2>
+                    <p className="mt-1 text-slate-500 dark:text-slate-400">{t.subtitle}</p>
                 </div>
             </div>
 
@@ -277,7 +434,7 @@ export default function DashboardTab() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="bg-gradient-to-br from-emerald-500 to-green-600 border border-green-400 rounded-2xl p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-white relative overflow-hidden flex flex-col h-full"
+                    className="relative flex h-full flex-col overflow-hidden rounded-[28px] border border-emerald-400/60 bg-[linear-gradient(135deg,#12806d_0%,#0f5a4e_48%,#0c3d35_100%)] p-6 text-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                 >
                     <div className="relative z-10 flex flex-col h-full">
                         <div className="flex justify-between items-start mb-4">
@@ -308,20 +465,20 @@ export default function DashboardTab() {
             {/* Middle Section: Bento Grid (Table & Calendar) */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-12">
                 {/* Middle Left: Patient Table */}
-                <div className="lg:col-span-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-fit">
+                <div className="premium-panel lg:col-span-2 h-fit rounded-[28px] p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                     <div className="flex items-center gap-2 mb-6">
-                        <Users className="w-6 h-6 text-blue-600" />
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Recent Patients</h3>
+                        <Users className="w-6 h-6 text-[#12695b]" />
+                        <h3 className="text-lg font-bold text-slate-950 dark:text-white">{t.recentPatients}</h3>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-gray-100 dark:border-gray-800 text-gray-500 dark:text-gray-400 text-sm">
-                                    <th className="pb-3 font-medium">Name</th>
-                                    <th className="pb-3 font-medium">Ward/ID</th>
-                                    <th className="pb-3 font-medium">Priority</th>
-                                    <th className="pb-3 font-medium">Start Date</th>
-                                    <th className="pb-3 font-medium text-right">Actions</th>
+                                    <th className="pb-3 font-medium">{adminCopy.name}</th>
+                                    <th className="pb-3 font-medium">{adminCopy.wardId}</th>
+                                    <th className="pb-3 font-medium">{adminCopy.priority}</th>
+                                    <th className="pb-3 font-medium">{adminCopy.startDate}</th>
+                                    <th className="pb-3 font-medium text-right">{adminCopy.actions}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -331,12 +488,12 @@ export default function DashboardTab() {
                                         <td className="py-4 text-gray-500">{p.id}</td>
                                         <td className="py-4">
                                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${p.priority === 'High' ? 'bg-red-100 text-red-600 dark:bg-red-900/30' : p.priority === 'Medium' ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30'}`}>
-                                                {p.priority}
+                                                {priorityLabels[p.priority]}
                                             </span>
                                         </td>
                                         <td className="py-4 text-gray-500">{p.date}</td>
                                         <td className="py-4 text-right">
-                                            <button className="text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors cursor-pointer">View</button>
+                                            <button className="text-[#12695b] hover:text-[#0f5a4e] font-medium text-sm transition-colors cursor-pointer">{adminCopy.view}</button>
                                         </td>
                                     </tr>
                                 ))}
@@ -347,10 +504,10 @@ export default function DashboardTab() {
 
                 {/* Middle Right: Compact Calendar & Audit */}
                 <div className="lg:col-span-1 flex flex-col gap-8">
-                    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <div className="premium-panel rounded-[28px] p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Calendar</h3>
-                            <span className="text-sm font-semibold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">April 2026</span>
+                            <h3 className="text-lg font-bold text-slate-950 dark:text-white">{t.calendarTitle}</h3>
+                            <span className="text-sm font-semibold text-[#12695b] bg-[#eff8f5] dark:bg-emerald-900/30 px-3 py-1 rounded-full">April 2026</span>
                         </div>
                         <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-400 mb-2">
                             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => <div key={i}>{d}</div>)}
@@ -358,14 +515,14 @@ export default function DashboardTab() {
                         <div className="grid grid-cols-7 gap-1">
                             {[0, 0, 0].map((_, i) => <div key={`empty-${i}`}></div>)}
                             {calendarDays.map(d => (
-                                <div key={d} className={`aspect-square flex items-center justify-center rounded-lg text-sm font-medium cursor-pointer transition-colors ${d === 26 ? 'bg-blue-600 text-white shadow-md' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
+                                <div key={d} className={`aspect-square flex items-center justify-center rounded-lg text-sm font-medium cursor-pointer transition-colors ${d === 26 ? 'bg-[#12695b] text-white shadow-md' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
                                     {d}
                                 </div>
                             ))}
                         </div>
                     </div>
                     
-                    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex-1">
+                    <div className="premium-panel flex-1 rounded-[28px] p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t.latest}</h3>
                         <div className="overflow-y-auto pr-2 space-y-4 max-h-[250px]">
                             {auditLog.map((log, i) => (
@@ -375,25 +532,26 @@ export default function DashboardTab() {
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex justify-between items-start">
-                                            <p className="text-sm font-bold text-gray-900 dark:text-white">{log.action}</p>
+                                            <p className="text-sm font-bold text-slate-950 dark:text-white">{log.action}</p>
                                         </div>
                                         <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mt-1">{log.details}</p>
                                     </div>
                                 </div>
                             ))}
+                            {auditLog.length === 0 ? <p className="text-sm text-slate-500 dark:text-slate-400">{t.noActivity}</p> : null}
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Bottom Section: Full Width Revenue Analysis */}
-            <div className="mt-12 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div className="premium-panel mt-12 rounded-[28px] p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-2">
-                        <BarChart2 className="w-6 h-6 text-blue-600" />
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Revenue & Performance Analysis</h3>
+                        <BarChart2 className="w-6 h-6 text-[#12695b]" />
+                        <h3 className="text-lg font-bold text-slate-950 dark:text-white">{t.performanceTitle}</h3>
                     </div>
-                    <span className="text-sm font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 rounded-full">+24% vs Last Week</span>
+                    <span className="text-sm font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 rounded-full">{mostBusyDay}</span>
                 </div>
                 <div className="space-y-6">
                     {busyDays.map((stat, i) => (
