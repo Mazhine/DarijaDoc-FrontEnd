@@ -71,13 +71,13 @@ export default function WhatsAppChat({ heroOnly = false }: { heroOnly?: boolean 
           startPhoneAnim ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
         }`}
       >
-        <div className="absolute left-1/2 top-0 z-30 flex h-5 w-28 -translate-x-1/2 items-center justify-center rounded-b-3xl bg-slate-200">
+        <div className="absolute start-1/2 top-0 z-30 flex h-5 w-28 -translate-x-1/2 items-center justify-center rounded-b-3xl bg-slate-200">
           <div className="h-1.5 w-12 rounded-full bg-slate-400" />
         </div>
 
         <div className="relative flex h-[560px] w-full flex-col overflow-hidden rounded-[32px] border border-slate-200 bg-[#eef4f1]">
           <div className="flex h-[62px] items-center bg-[#12695b] px-4 pt-4" dir={isArabic ? 'rtl' : 'ltr'}>
-            <div className={`flex flex-1 items-center gap-3 ${isArabic ? 'mr-2' : 'ml-2'}`}>
+            <div className={`flex flex-1 items-center gap-3 ms-2`}>
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#12695b]">
                 DD
               </div>

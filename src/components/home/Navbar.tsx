@@ -65,14 +65,20 @@ export const Navbar = () => {
       }`}
       dir={isArabic ? 'rtl' : 'ltr'}
     >
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between rounded-full border border-slate-200/80 bg-white/80 px-4 py-3 backdrop-blur-xl shadow-sm transition-colors dark:border-white/10 dark:bg-[#07111f]/80 md:px-6">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between overflow-visible rounded-full border border-slate-200/80 bg-white/80 px-4 py-3 backdrop-blur-xl shadow-sm transition-colors dark:border-white/10 dark:bg-[#07111f]/80 md:px-6">
         <a href={`/${locale}`} className="flex items-center gap-3">
           <span className="premium-chip inline-flex h-10 w-10 items-center justify-center rounded-full">
             <Stethoscope className="h-5 w-5" />
           </span>
           <div>
             <div className="text-sm font-semibold text-slate-950 dark:text-white">DarijaDoc</div>
-            <div className="text-xs text-slate-500 dark:text-slate-400">WhatsApp scheduling for clinics</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400">
+              {locale === 'fr'
+                ? 'Organisation WhatsApp pour cabinets'
+                : locale === 'ar'
+                  ? 'تنظيم واتساب للعيادات'
+                  : 'WhatsApp scheduling for clinics'}
+            </div>
           </div>
         </a>
 
@@ -101,13 +107,14 @@ export const Navbar = () => {
             {copy.nav.signIn}
           </a>
           <div
-            className="relative"
+            className="relative isolate mb-[-0.75rem] flex-none pb-3"
             onMouseEnter={() => setIsLangOpen(true)}
             onMouseLeave={() => setIsLangOpen(false)}
           >
             <button
               type="button"
-              className="premium-subtle flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-slate-700 transition hover:text-slate-950 dark:text-slate-300 dark:hover:text-white"
+              aria-expanded={isLangOpen}
+              className="premium-subtle flex h-[42px] w-[88px] items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-slate-700 transition hover:text-slate-950 dark:text-slate-300 dark:hover:text-white"
             >
               <Globe className="h-4 w-4" />
               <span className="uppercase">{locale}</span>
@@ -119,9 +126,7 @@ export const Navbar = () => {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 8 }}
-                  className={`premium-surface absolute top-full mt-2 w-max min-w-[140px] overflow-hidden rounded-3xl py-1 shadow-xl z-50 ${
-                    isArabic ? 'left-0' : 'right-0'
-                  }`}
+                  className="premium-surface absolute end-0 top-full z-50 w-40 overflow-hidden rounded-3xl py-1 shadow-xl"
                 >
                   {languages.map((language) => (
                     <button
@@ -167,7 +172,7 @@ export const Navbar = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="premium-surface absolute left-4 right-4 top-[84px] rounded-[1.75rem] p-4 shadow-2xl md:hidden"
+            className="premium-surface absolute inset-x-4 top-[84px] rounded-[1.75rem] p-4 shadow-2xl md:hidden"
           >
             <div className="flex flex-col gap-3 text-sm font-medium text-slate-700 dark:text-slate-200">
               {navLinks.map((link) => (

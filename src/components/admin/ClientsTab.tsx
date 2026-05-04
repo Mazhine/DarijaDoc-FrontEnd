@@ -501,13 +501,13 @@ export default function ClientsTab() {
 
         <div className="flex w-full items-center gap-3 sm:w-auto">
           <div className="relative w-full sm:w-80">
-            <Search className={`absolute ${currentLocale === "ar" ? "right-3" : "left-3"} top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400`} />
+            <Search className={`absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400`} />
             <input
               type="text"
               placeholder={t.search}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={`w-full rounded-xl border border-slate-200 py-2 outline-none focus:ring-2 focus:ring-[#12695b] dark:border-white/10 dark:bg-[#0d1726] dark:text-white ${currentLocale === "ar" ? "pr-9 pl-4" : "pl-9 pr-4"}`}
+              className={`w-full rounded-xl border border-slate-200 py-2 outline-none focus:ring-2 focus:ring-[#12695b] dark:border-white/10 dark:bg-[#0d1726] dark:text-white ps-9 pe-4`}
             />
           </div>
           <button onClick={openAddModal} className="flex items-center gap-2 rounded-xl bg-[#12695b] px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#0f5a4e]">
@@ -557,7 +557,7 @@ export default function ClientsTab() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button onClick={(e) => openEditModal(client, e)} className="mr-2 rounded-lg p-2 text-gray-400 transition-colors hover:bg-[#eff8f5] hover:text-[#12695b] dark:hover:bg-emerald-900/30">
+                        <button onClick={(e) => openEditModal(client, e)} className="me-2 rounded-lg p-2 text-gray-400 transition-colors hover:bg-[#eff8f5] hover:text-[#12695b] dark:hover:bg-emerald-900/30">
                           <Edit2 className="h-4 w-4" />
                         </button>
                         <button onClick={(e) => handleDelete(client.id, e)} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30">
@@ -646,7 +646,7 @@ export default function ClientsTab() {
         {isModalOpen ? (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
             <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} className="relative max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-[30px] border border-slate-200 bg-white p-6 shadow-xl dark:border-white/10 dark:bg-[#0d1726] sm:p-8">
-              <button onClick={() => setIsModalOpen(false)} className="absolute right-4 top-4 rounded-full bg-gray-50 p-2 text-gray-400 transition-colors hover:text-gray-700 dark:bg-gray-800 dark:hover:text-gray-200">
+              <button onClick={() => setIsModalOpen(false)} className="absolute end-4 top-4 rounded-full bg-gray-50 p-2 text-gray-400 transition-colors hover:text-gray-700 dark:bg-gray-800 dark:hover:text-gray-200">
                 <X className="h-5 w-5" />
               </button>
 

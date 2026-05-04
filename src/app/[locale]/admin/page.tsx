@@ -6,6 +6,7 @@ import {
   CalendarDays,
   CheckCircle2,
   ChevronDown,
+  CreditCard,
   Globe,
   LayoutDashboard,
   LogOut,
@@ -23,8 +24,11 @@ import CalendarTab from '@/src/components/admin/CalendarTab';
 import TeamTab from '@/src/components/admin/TeamTab';
 import ReviewsTab from '@/src/components/admin/ReviewsTab';
 import DemosTab from '@/src/components/admin/DemosTab';
+import SubscriptionsTab from '@/src/components/admin/SubscriptionsTab';
+import LogsTab from '@/src/components/admin/LogsTab';
 import { logAuditActivity } from '@/src/lib/audit';
-import { getSeededTeam, type TeamMember, updateTeamMemberCredentials } from '@/src/lib/team';
+import { clearClientSession, hasClientSession, setClientSession } from '@/src/lib/auth';
+import { ensureTeamSecurity, getSeededTeam, type TeamMember, updateTeamMemberCredentials, verifyPassword } from '@/src/lib/team';
 
 const UI = {
   en: {
@@ -34,6 +38,8 @@ const UI = {
       { id: 'calendar', label: 'Calendar', icon: CalendarDays },
       { id: 'demos', label: 'Demos', icon: CalendarDays },
       { id: 'team', label: 'Team & Access', icon: ShieldAlert },
+      { id: 'subscriptions', label: 'Subscriptions', icon: CreditCard },
+      { id: 'logs', label: 'Logs', icon: CheckCircle2 },
       { id: 'reviews', label: 'Reviews & Feedback', icon: Star },
     ],
     login: {
@@ -61,6 +67,8 @@ const UI = {
       { id: 'calendar', label: 'Calendrier', icon: CalendarDays },
       { id: 'demos', label: 'Demos', icon: CalendarDays },
       { id: 'team', label: 'Equipe & acces', icon: ShieldAlert },
+      { id: 'subscriptions', label: 'Abonnements', icon: CreditCard },
+      { id: 'logs', label: 'Logs', icon: CheckCircle2 },
       { id: 'reviews', label: 'Avis & Retours', icon: Star },
     ],
     login: {
@@ -207,7 +215,7 @@ export default function AdminDashboard() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [isDark, setIsDark] = useState(() => (hasWindow ? localStorage.getItem('darijadoc-theme') === 'dark' : false));
   const [activeTab, setActiveTab] = useState(() => (hasWindow ? sessionStorage.getItem('adminTab') || 'dashboard' : 'dashboard'));
-  const [isAuthenticated, setIsAuthenticated] = useState(() => (hasWindow ? sessionStorage.getItem('adminAuth') === 'true' : false));
+  const [isAuthenticated, setIsAuthenticated] = useState(() => (hasWindow ? hasClientSession() : false));
   const [email, setEmail] = useState(() => (hasWindow ? sessionStorage.getItem('adminEmail') || '' : ''));
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
@@ -228,7 +236,7 @@ export default function AdminDashboard() {
     }
 
     document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-    getSeededTeam();
+    ensureTeamSecurity();
 
     const frame = window.requestAnimationFrame(() => {
       setIsHydrated(true);
@@ -250,6 +258,20 @@ export default function AdminDashboard() {
       router.replace(`/${locale}/admin`);
     }
   }, [isAuthenticated, isHydrated, locale, pathname, router]);
+
+  useEffect(() => {
+    const handleNavigate = (event: Event) => {
+      const detail = (event as CustomEvent<{ tab?: string }>).detail;
+      if (!detail?.tab) {
+        return;
+      }
+
+      setActiveTab(detail.tab);
+    };
+
+    window.addEventListener('adminNavigate', handleNavigate);
+    return () => window.removeEventListener('adminNavigate', handleNavigate);
+  }, []);
 
   const toggleTheme = () => {
     const nextIsDark = !isDark;
@@ -273,13 +295,14 @@ export default function AdminDashboard() {
     setIsAuthenticated(true);
     setEmail(user.email);
 
-    sessionStorage.setItem('adminAuth', 'true');
-    sessionStorage.setItem('adminEmail', user.email);
-    sessionStorage.setItem('adminRole', user.role);
-    sessionStorage.setItem('adminAccess', user.access);
-    sessionStorage.setItem('adminName', user.name);
-    sessionStorage.setItem('adminOwnerDoctorEmail', ownerDoctorEmail);
-    sessionStorage.setItem('adminOwnerDoctorName', ownerDoctorName);
+    setClientSession({
+      email: user.email,
+      role: user.role,
+      access: user.access,
+      name: user.name,
+      ownerDoctorEmail,
+      ownerDoctorName,
+    });
     if (pathname?.includes('/auth')) {
       router.replace(`/${locale}/admin`);
     }
@@ -287,16 +310,13 @@ export default function AdminDashboard() {
     setTimeout(() => logAuditActivity('loggedIn', 'System', 'system'), 100);
   };
 
-  const handleLogin = (event: React.FormEvent) => {
+  const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    const user = getSeededTeam().find(
-      (member) =>
-        member.email?.toLowerCase() === email.toLowerCase() &&
-        member.password === password
-    );
+    const securedTeam = await ensureTeamSecurity();
+    const user = securedTeam.find((member) => member.email?.toLowerCase() === email.toLowerCase());
 
-    if (!user) {
+    if (!user || !(await verifyPassword(user, password))) {
       setLoginError(locale === 'fr' ? 'Identifiants invalides.' : locale === 'ar' ? 'بيانات الدخول غير صحيحة.' : 'Invalid credentials.');
       return;
     }
@@ -315,7 +335,7 @@ export default function AdminDashboard() {
     completeAuthentication(user);
   };
 
-  const handleResetCredentials = (event: React.FormEvent) => {
+  const handleResetCredentials = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (!pendingResetUser) {
@@ -333,7 +353,7 @@ export default function AdminDashboard() {
       return;
     }
 
-    const updatedUser = updateTeamMemberCredentials({
+    const updatedUser = await updateTeamMemberCredentials({
       currentEmail: pendingResetUser.email,
       nextEmail: resetEmail,
       nextPassword: resetPassword,
@@ -349,7 +369,7 @@ export default function AdminDashboard() {
     completeAuthentication(updatedUser);
   };
 
-  const handleUpdateOwnCredentials = (event: React.FormEvent) => {
+  const handleUpdateOwnCredentials = async (event: React.FormEvent) => {
     event.preventDefault();
 
     const currentEmail = sessionStorage.getItem('adminEmail') || email;
@@ -364,7 +384,7 @@ export default function AdminDashboard() {
     }
 
     const currentUser = getSeededTeam().find((member) => member.email.toLowerCase() === currentEmail.toLowerCase());
-    if (!currentUser || currentUser.password !== oldPassword) {
+    if (!currentUser || !(await verifyPassword(currentUser, oldPassword))) {
       setResetError(locale === 'fr' ? 'Ancien mot de passe incorrect.' : locale === 'ar' ? 'كلمة المرور الحالية غير صحيحة.' : 'Current password is incorrect.');
       return;
     }
@@ -380,7 +400,7 @@ export default function AdminDashboard() {
       return;
     }
 
-    const updatedUser = updateTeamMemberCredentials({
+    const updatedUser = await updateTeamMemberCredentials({
       currentEmail,
       nextEmail,
       nextPassword,
@@ -400,15 +420,25 @@ export default function AdminDashboard() {
   };
 
   const tabs = useMemo(() => {
+    const fallbackSubscriptionsTab = {
+      id: 'subscriptions',
+      label: locale === 'fr' ? 'Abonnements' : locale === 'ar' ? 'الاشتراكات' : 'Subscriptions',
+      icon: CreditCard,
+    };
+    const sourceTabs = copy.tabs.some((tab) => tab.id === 'subscriptions') ? copy.tabs : [...copy.tabs, fallbackSubscriptionsTab];
+    const doctorTeamLabel = locale === 'fr' ? 'Mon equipe' : locale === 'ar' ? 'فريقي' : 'My team';
+
     if (userRole === 'Admin') {
-      return copy.tabs.filter((tab) => tab.id === 'dashboard' || tab.id === 'team' || tab.id === 'reviews' || tab.id === 'demos');
+      return sourceTabs.filter((tab) => tab.id === 'dashboard' || tab.id === 'team' || tab.id === 'subscriptions' || tab.id === 'logs' || tab.id === 'reviews' || tab.id === 'demos');
     }
     if (userRole === 'Doctor') {
-      return copy.tabs.filter((tab) => tab.id !== 'reviews' && tab.id !== 'demos');
+      return sourceTabs
+        .filter((tab) => tab.id === 'dashboard' || tab.id === 'calendar' || tab.id === 'clients' || tab.id === 'team')
+        .map((tab) => (tab.id === 'team' ? { ...tab, label: doctorTeamLabel } : tab));
     }
 
-    return copy.tabs.filter((tab) => tab.id === 'calendar' || tab.id === 'clients');
-  }, [copy.tabs, userRole]);
+    return sourceTabs.filter((tab) => tab.id === 'calendar' || tab.id === 'clients');
+  }, [copy.tabs, locale, userRole]);
 
   const visibleActiveTab = userRole === 'Secretary' && activeTab === 'team' ? 'calendar' : activeTab;
 
@@ -420,6 +450,10 @@ export default function AdminDashboard() {
         return <CalendarTab />;
       case 'team':
         return userRole === 'Admin' || userRole === 'Doctor' ? <TeamTab /> : <DashboardTab />;
+      case 'subscriptions':
+        return userRole === 'Admin' ? <SubscriptionsTab /> : <DashboardTab />;
+      case 'logs':
+        return userRole === 'Admin' ? <LogsTab /> : <DashboardTab />;
       case 'reviews':
         return <ReviewsTab />;
       case 'demos':
@@ -649,11 +683,7 @@ export default function AdminDashboard() {
           <button
             onClick={() => {
               setIsAuthenticated(false);
-              sessionStorage.removeItem('adminAuth');
-              sessionStorage.removeItem('adminRole');
-              sessionStorage.removeItem('adminAccess');
-              sessionStorage.removeItem('adminOwnerDoctorEmail');
-              sessionStorage.removeItem('adminOwnerDoctorName');
+              clearClientSession();
             }}
             className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-red-500 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
           >

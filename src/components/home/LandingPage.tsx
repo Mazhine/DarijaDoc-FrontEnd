@@ -39,6 +39,69 @@ const initialForm: DemoForm = {
 export default function LandingPage({ locale }: { locale: LocaleKey }) {
   const copy = getLandingContent(locale);
   const isArabic = locale === 'ar';
+  const pricingCopy =
+    locale === 'fr'
+      ? {
+          label: 'Abonnement',
+          price: '400 DH / mois',
+          description: 'Tarif simple pour un cabinet qui veut gagner du temps au secretariat, mieux remplir l agenda et garder un ton medical clair.',
+          bullets: [
+            'Rappels et qualification sur WhatsApp',
+            'Agenda pense pour une consultation de 20 minutes',
+            'Vue patients, equipe et calendrier dans le meme outil',
+          ],
+          simulator: 'Simulation cabinet',
+          estimate: 'Estimation de gain mensuel',
+          included: 'Abonnement inclus: 400 DH',
+          patients: 'Patients / mois',
+          visitPrice: 'Prix moyen visite',
+          minutesSaved: 'Minutes gagnees / patient',
+          revenue: 'CA potentiel traite',
+          savedTime: 'Temps gagne',
+          netGain: 'Gain net estime',
+          workflowCta: 'Planifier une demo',
+        }
+      : locale === 'ar'
+        ? {
+            label: 'الاشتراك',
+            price: '400 درهم / الشهر',
+            description: 'سعر واضح لعيادة تريد ربح الوقت في السكرتارية وتحسين ملء المواعيد مع واجهة طبية متماسكة.',
+            bullets: [
+              'تذكيرات وتأهيل الطلبات عبر واتساب',
+              'جدول مناسب لإيقاع العيادة',
+              'المرضى والفريق والتقويم في نفس الأداة',
+            ],
+            simulator: 'محاكاة العيادة',
+            estimate: 'تقدير الربح الشهري',
+            included: 'الاشتراك مشمول: 400 درهم',
+            patients: 'المرضى / الشهر',
+            visitPrice: 'متوسط سعر الزيارة',
+            minutesSaved: 'الدقائق المربوحة / مريض',
+            revenue: 'رقم المعاملات المحتمل',
+            savedTime: 'الوقت المربوح',
+            netGain: 'الربح الصافي المتوقع',
+            workflowCta: 'احجز ديمو',
+          }
+        : {
+            label: 'Subscription',
+            price: '400 MAD / month',
+            description: 'A simple price for clinics that want to save secretary time, fill schedules better, and keep a clear medical tone.',
+            bullets: [
+              'WhatsApp reminders and request qualification',
+              'A schedule shaped for clinic rhythm',
+              'Patients, team, and calendar in one tool',
+            ],
+            simulator: 'Clinic simulation',
+            estimate: 'Estimated monthly gain',
+            included: 'Subscription included: 400 MAD',
+            patients: 'Patients / month',
+            visitPrice: 'Average visit price',
+            minutesSaved: 'Minutes saved / patient',
+            revenue: 'Potential handled revenue',
+            savedTime: 'Time saved',
+            netGain: 'Estimated net gain',
+            workflowCta: 'Schedule a demo',
+          };
   const [form, setForm] = useState<DemoForm>(initialForm);
   const [selectedDate, setSelectedDate] = useState(() => {
     const nextDate = new Date();
@@ -61,7 +124,6 @@ export default function LandingPage({ locale }: { locale: LocaleKey }) {
     return formatterDay.format(new Date(selectedDate));
   }, [locale, selectedDate]);
 
-  const timeOptions = ['10:00', '11:30', '14:00', '15:30', '17:00'];
   const subscriptionPrice = 400;
   const revenue = monthlyPatients * visitPrice;
   const savedHours = Math.round((monthlyPatients * minutesSaved) / 60);
@@ -124,7 +186,7 @@ export default function LandingPage({ locale }: { locale: LocaleKey }) {
 
           <motion.div {...reveal} className="relative">
             <div className="absolute inset-x-8 top-10 h-32 rounded-full bg-[#d7efe8] opacity-30 blur-3xl dark:bg-[#12695b]/10" />
-            <div className="absolute -bottom-4 left-8 h-24 w-24 rounded-full bg-[#f3d0bd] opacity-20 blur-2xl dark:bg-[#f3d0bd]/10" />
+            <div className="absolute -bottom-4 start-8 h-24 w-24 rounded-full bg-[#f3d0bd] opacity-20 blur-2xl dark:bg-[#f3d0bd]/10" />
             <WhatsAppChat heroOnly />
           </motion.div>
         </div>
@@ -156,7 +218,7 @@ export default function LandingPage({ locale }: { locale: LocaleKey }) {
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute left-[4%] top-12 h-28 w-28 rounded-full bg-[#dcefe8] blur-2xl dark:bg-[#12695b]/20" />
           <div className="absolute right-[8%] top-20 h-40 w-40 rounded-[32px] border border-[#d7e8e2] bg-white/40 rotate-12 dark:border-white/10 dark:bg-white/5" />
-          <div className="absolute bottom-8 left-1/2 h-24 w-64 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(241,181,152,0.28),transparent_70%)]" />
+          <div className="absolute bottom-8 start-1/2 h-24 w-64 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(241,181,152,0.28),transparent_70%)]" />
         </div>
         <div className="mx-auto max-w-6xl">
           <motion.div {...reveal} className="max-w-2xl">
@@ -173,13 +235,13 @@ export default function LandingPage({ locale }: { locale: LocaleKey }) {
                 {...reveal}
                 className="premium-surface relative rounded-[28px] p-6"
               >
-                <div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-[radial-gradient(circle,rgba(18,105,91,0.12),transparent_68%)]" />
+                <div className="absolute end-0 top-0 h-24 w-24 rounded-full bg-[radial-gradient(circle,rgba(18,105,91,0.12),transparent_68%)]" />
                 <div className="text-sm font-semibold text-[#12695b] dark:text-[#9fe7d4]">{step.id}</div>
                 <h3 className="mt-3 text-xl font-semibold text-slate-950 dark:text-white [font-family:var(--font-medical-display)]">{step.title}</h3>
                 <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{step.description}</p>
                 {index === copy.workflow.steps.length - 1 ? (
                   <a href="#demo" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#12695b] dark:text-[#9fe7d4]">
-                    Planifier une demo
+                    {pricingCopy.workflowCta}
                     <ArrowRight className="h-4 w-4" />
                   </a>
                 ) : null}
@@ -192,17 +254,13 @@ export default function LandingPage({ locale }: { locale: LocaleKey }) {
       <section id="pricing" className="px-5 py-4 md:px-6 md:py-10">
         <div className="mx-auto grid max-w-6xl gap-4 lg:grid-cols-[0.78fr_1.22fr]">
           <motion.div {...reveal} className="premium-surface rounded-[32px] p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#12695b] dark:text-[#9fe7d4]">Abonnement</p>
-            <h2 className="mt-3 text-[clamp(2rem,4vw,3rem)] font-semibold text-slate-950 dark:text-white [font-family:var(--font-medical-display)]">400 DH / mois</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#12695b] dark:text-[#9fe7d4]">{pricingCopy.label}</p>
+            <h2 className="mt-3 text-[clamp(2rem,4vw,3rem)] font-semibold text-slate-950 dark:text-white [font-family:var(--font-medical-display)]">{pricingCopy.price}</h2>
             <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
-              Tarif simple pour un cabinet qui veut gagner du temps au secretariat, mieux remplir l agenda et garder un ton medical clair.
+              {pricingCopy.description}
             </p>
             <div className="mt-6 grid gap-3">
-              {[
-                'Rappels et qualification sur WhatsApp',
-                'Agenda pense pour une consultation de 20 minutes',
-                'Vue patients, equipe et calendrier dans le meme outil',
-              ].map((item) => (
+              {pricingCopy.bullets.map((item) => (
                 <div key={item} className="premium-subtle rounded-2xl px-4 py-3 text-sm text-slate-700 shadow-sm dark:text-slate-200">
                   {item}
                 </div>
@@ -213,24 +271,24 @@ export default function LandingPage({ locale }: { locale: LocaleKey }) {
           <motion.div {...reveal} className="premium-surface rounded-[32px] p-6">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#12695b] dark:text-[#9fe7d4]">Simulation cabinet</p>
-                <h2 className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white [font-family:var(--font-medical-display)]">Estimation de gain mensuel</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#12695b] dark:text-[#9fe7d4]">{pricingCopy.simulator}</p>
+                <h2 className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white [font-family:var(--font-medical-display)]">{pricingCopy.estimate}</h2>
               </div>
               <div className="premium-chip rounded-full px-4 py-2 text-xs font-semibold">
-                Abonnement inclus: 400 DH
+                {pricingCopy.included}
               </div>
             </div>
 
             <div className="mt-6 grid gap-5 md:grid-cols-3">
-              <RangeField label="Patients / mois" value={monthlyPatients} min={20} max={350} step={10} onChange={setMonthlyPatients} />
-              <RangeField label="Prix moyen visite" value={visitPrice} min={80} max={600} step={10} suffix=" DH" onChange={setVisitPrice} />
-              <RangeField label="Minutes gagnees / patient" value={minutesSaved} min={2} max={12} step={1} suffix=" min" onChange={setMinutesSaved} />
+              <RangeField label={pricingCopy.patients} value={monthlyPatients} min={20} max={350} step={10} onChange={setMonthlyPatients} />
+              <RangeField label={pricingCopy.visitPrice} value={visitPrice} min={80} max={600} step={10} suffix={locale === 'ar' ? ' درهم' : ' DH'} onChange={setVisitPrice} />
+              <RangeField label={pricingCopy.minutesSaved} value={minutesSaved} min={2} max={12} step={1} suffix={locale === 'ar' ? ' د' : ' min'} onChange={setMinutesSaved} />
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-3">
-              <MetricCard label="CA potentiel traite" value={`${new Intl.NumberFormat('fr-MA').format(revenue)} DH`} />
-              <MetricCard label="Temps gagne" value={`${savedHours} h / mois`} />
-              <MetricCard label="Gain net estime" value={`${new Intl.NumberFormat('fr-MA').format(netGain)} DH`} accent />
+              <MetricCard label={pricingCopy.revenue} value={`${new Intl.NumberFormat(locale === 'en' ? 'en-MA' : locale === 'ar' ? 'ar-MA' : 'fr-MA').format(revenue)} ${locale === 'ar' ? 'درهم' : 'DH'}`} />
+              <MetricCard label={pricingCopy.savedTime} value={locale === 'ar' ? `${savedHours} س / شهر` : `${savedHours} h / mois`} />
+              <MetricCard label={pricingCopy.netGain} value={`${new Intl.NumberFormat(locale === 'en' ? 'en-MA' : locale === 'ar' ? 'ar-MA' : 'fr-MA').format(netGain)} ${locale === 'ar' ? 'درهم' : 'DH'}`} accent />
             </div>
           </motion.div>
         </div>
@@ -240,7 +298,7 @@ export default function LandingPage({ locale }: { locale: LocaleKey }) {
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute left-[6%] top-10 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(18,105,91,0.12),transparent_68%)]" />
           <div className="absolute right-[8%] bottom-12 h-36 w-36 rounded-[2rem] border border-[#d9e8e2] bg-white/35 rotate-12 dark:border-white/10 dark:bg-white/5" />
-          <div className="absolute left-1/2 top-16 h-px w-[72%] -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgba(18,105,91,0.18),transparent)]" />
+          <div className="absolute start-1/2 top-16 h-px w-[72%] -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgba(18,105,91,0.18),transparent)]" />
         </div>
         <div className="mx-auto max-w-6xl">
           <motion.div {...reveal} className="max-w-2xl">
@@ -302,7 +360,7 @@ export default function LandingPage({ locale }: { locale: LocaleKey }) {
                   key={item.question}
                   {...reveal}
                   onClick={() => setOpenQuestion(index)}
-                  className="premium-surface w-full rounded-[26px] p-5 text-left"
+                  className={`premium-surface w-full rounded-[26px] p-5 ${isArabic ? 'text-right' : 'text-left'}`}
                 >
                   <div className={`flex items-center justify-between gap-4 ${isArabic ? 'text-right' : ''}`}>
                     <span className="text-base font-medium text-slate-950 dark:text-white">{item.question}</span>

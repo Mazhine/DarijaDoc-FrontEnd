@@ -841,7 +841,7 @@ export default function CalendarTab() {
               </button>
               <AnimatePresence>
                 {isDatePickerOpen ? (
-                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} className="absolute left-0 top-full z-30 mt-2 rounded-[20px] border border-slate-200 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-[#0d1726]">
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} className="absolute start-0 top-full z-30 mt-2 rounded-[20px] border border-slate-200 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-[#0d1726]">
                     <div className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">{t.dateJump}</div>
                     <input
                       type="date"
