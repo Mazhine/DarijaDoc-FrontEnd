@@ -81,7 +81,7 @@ export default function LandingPage({ locale }: { locale: LocaleKey }) {
 
   return (
     <div className="relative overflow-hidden bg-transparent text-slate-900 transition-colors dark:text-white" dir={isArabic ? 'rtl' : 'ltr'}>
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(circle_at_12%_18%,rgba(26,135,115,0.18),transparent_24%),radial-gradient(circle_at_88%_12%,rgba(241,181,152,0.28),transparent_21%),radial-gradient(circle_at_66%_38%,rgba(255,220,180,0.36),transparent_19%)] dark:bg-[radial-gradient(circle_at_12%_18%,rgba(26,135,115,0.26),transparent_24%),radial-gradient(circle_at_88%_12%,rgba(241,181,152,0.16),transparent_21%),radial-gradient(circle_at_66%_38%,rgba(255,220,180,0.1),transparent_19%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-gradient-to-b from-slate-50/50 to-transparent dark:from-slate-900/50" />
       <section id="hero" className="relative px-5 pb-16 pt-28 md:px-6 md:pb-20 md:pt-32">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
           <motion.div {...reveal}>
@@ -123,8 +123,8 @@ export default function LandingPage({ locale }: { locale: LocaleKey }) {
           </motion.div>
 
           <motion.div {...reveal} className="relative">
-            <div className="absolute inset-x-8 top-10 h-32 rounded-full bg-[#d7efe8] blur-3xl dark:bg-[#12695b]/25" />
-            <div className="absolute -bottom-4 left-8 h-24 w-24 rounded-full bg-[#f3d0bd] opacity-70 blur-2xl dark:bg-[#f3d0bd]/30" />
+            <div className="absolute inset-x-8 top-10 h-32 rounded-full bg-[#d7efe8] opacity-30 blur-3xl dark:bg-[#12695b]/10" />
+            <div className="absolute -bottom-4 left-8 h-24 w-24 rounded-full bg-[#f3d0bd] opacity-20 blur-2xl dark:bg-[#f3d0bd]/10" />
             <WhatsAppChat heroOnly />
           </motion.div>
         </div>
@@ -399,22 +399,13 @@ export default function LandingPage({ locale }: { locale: LocaleKey }) {
 
               <div>
                 <div className="mb-3 text-sm font-medium text-slate-700 dark:text-slate-200">{copy.demo.labels.time}</div>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {timeOptions.map((slot) => (
-                    <button
-                      key={slot}
-                      type="button"
-                      onClick={() => setSelectedTime(slot)}
-                      className={`rounded-2xl border px-4 py-3 text-sm font-medium transition ${
-                        selectedTime === slot
-                          ? 'border-[#12695b] bg-[#12695b] text-white'
-                          : 'premium-subtle text-slate-700 dark:text-slate-200'
-                      }`}
-                    >
-                      {slot}
-                    </button>
-                  ))}
-                </div>
+                  <input
+                    type="time"
+                    value={selectedTime}
+                    onChange={(e) => setSelectedTime(e.target.value)}
+                    className={`md:col-span-3 ${fieldClass}`}
+                    required
+                  />
               </div>
 
               <button

@@ -12,6 +12,7 @@ import {
   Moon,
   Plus,
   ShieldAlert,
+  Star,
   Sun,
   Users,
 } from 'lucide-react';
@@ -20,6 +21,8 @@ import DashboardTab from '@/src/components/admin/DashboardTab';
 import ClientsTab from '@/src/components/admin/ClientsTab';
 import CalendarTab from '@/src/components/admin/CalendarTab';
 import TeamTab from '@/src/components/admin/TeamTab';
+import ReviewsTab from '@/src/components/admin/ReviewsTab';
+import DemosTab from '@/src/components/admin/DemosTab';
 import { logAuditActivity } from '@/src/lib/audit';
 import { getSeededTeam, type TeamMember, updateTeamMemberCredentials } from '@/src/lib/team';
 
@@ -29,7 +32,9 @@ const UI = {
       { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
       { id: 'clients', label: 'Patients', icon: Users },
       { id: 'calendar', label: 'Calendar', icon: CalendarDays },
+      { id: 'demos', label: 'Demos', icon: CalendarDays },
       { id: 'team', label: 'Team & Access', icon: ShieldAlert },
+      { id: 'reviews', label: 'Reviews & Feedback', icon: Star },
     ],
     login: {
       title: 'DarijaDoc Access',
@@ -54,7 +59,9 @@ const UI = {
       { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
       { id: 'clients', label: 'Patients', icon: Users },
       { id: 'calendar', label: 'Calendrier', icon: CalendarDays },
+      { id: 'demos', label: 'Demos', icon: CalendarDays },
       { id: 'team', label: 'Equipe & acces', icon: ShieldAlert },
+      { id: 'reviews', label: 'Avis & Retours', icon: Star },
     ],
     login: {
       title: 'Acces DarijaDoc',
@@ -79,7 +86,9 @@ const UI = {
       { id: 'dashboard', label: 'لوحة القيادة', icon: LayoutDashboard },
       { id: 'clients', label: 'المرضى', icon: Users },
       { id: 'calendar', label: 'التقويم', icon: CalendarDays },
+      { id: 'demos', label: 'العروض', icon: CalendarDays },
       { id: 'team', label: 'الفريق والصلاحيات', icon: ShieldAlert },
+      { id: 'reviews', label: 'التقييمات والآراء', icon: Star },
     ],
     login: {
       title: 'دخول DarijaDoc',
@@ -256,9 +265,7 @@ export default function AdminDashboard() {
       nextTab ||
       (user.role === 'Secretary'
         ? 'calendar'
-        : user.role === 'Doctor'
-          ? 'dashboard'
-          : 'team');
+        : 'dashboard');
 
     setUserRole(user.role);
     setUserAccess(user.access);
@@ -393,8 +400,11 @@ export default function AdminDashboard() {
   };
 
   const tabs = useMemo(() => {
-    if (userRole === 'Admin' || userRole === 'Doctor') {
-      return copy.tabs;
+    if (userRole === 'Admin') {
+      return copy.tabs.filter((tab) => tab.id === 'dashboard' || tab.id === 'team' || tab.id === 'reviews' || tab.id === 'demos');
+    }
+    if (userRole === 'Doctor') {
+      return copy.tabs.filter((tab) => tab.id !== 'reviews' && tab.id !== 'demos');
     }
 
     return copy.tabs.filter((tab) => tab.id === 'calendar' || tab.id === 'clients');
@@ -410,6 +420,10 @@ export default function AdminDashboard() {
         return <CalendarTab />;
       case 'team':
         return userRole === 'Admin' || userRole === 'Doctor' ? <TeamTab /> : <DashboardTab />;
+      case 'reviews':
+        return <ReviewsTab />;
+      case 'demos':
+        return <DemosTab />;
       default:
         return <DashboardTab />;
     }

@@ -59,11 +59,13 @@ export const Navbar = () => {
   }
 
   return (
-    <nav
-      className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 py-4"
+    <header
+      className={`fixed inset-x-0 top-6 z-50 px-4 transition-all duration-300 ${
+        isReady ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'
+      }`}
       dir={isArabic ? 'rtl' : 'ltr'}
     >
-      <div className="premium-surface flex w-full max-w-6xl items-center justify-between rounded-full px-4 py-3 transition-colors md:px-6">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between rounded-full border border-slate-200/80 bg-white/80 px-4 py-3 backdrop-blur-xl shadow-sm transition-colors dark:border-white/10 dark:bg-[#07111f]/80 md:px-6">
         <a href={`/${locale}`} className="flex items-center gap-3">
           <span className="premium-chip inline-flex h-10 w-10 items-center justify-center rounded-full">
             <Stethoscope className="h-5 w-5" />
@@ -117,7 +119,7 @@ export const Navbar = () => {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 8 }}
-                  className={`premium-surface absolute top-full mt-2 w-36 overflow-hidden rounded-3xl py-1 shadow-xl ${
+                  className={`premium-surface absolute top-full mt-2 w-max min-w-[140px] overflow-hidden rounded-3xl py-1 shadow-xl z-50 ${
                     isArabic ? 'left-0' : 'right-0'
                   }`}
                 >
@@ -126,7 +128,7 @@ export const Navbar = () => {
                       key={language.code}
                       type="button"
                       onClick={() => switchLocale(language.code)}
-                      className={`w-full px-4 py-2 text-sm transition-colors ${
+                      className={`block w-full px-4 py-2 text-sm transition-colors ${
                         locale === language.code
                           ? 'bg-[#eff8f5] font-semibold text-[#12695b] dark:bg-white/8 dark:text-[#9fe7d4]'
                           : 'text-slate-700 hover:bg-slate-50 hover:text-slate-950 dark:text-slate-200 dark:hover:bg-white/6 dark:hover:text-white'
@@ -218,6 +220,6 @@ export const Navbar = () => {
           </motion.div>
         ) : null}
       </AnimatePresence>
-    </nav>
+    </header>
   );
 };

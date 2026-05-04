@@ -15,6 +15,7 @@ import {
   UserCog,
   UserPlus,
   X,
+  Bot,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getSeededTeam, getVisibleTeamForUser, saveTeam, type TeamAccess, type TeamMember, type TeamRole } from '@/src/lib/team';
@@ -46,7 +47,6 @@ const TEAM_T: Record<string, any> = {
     accessTrans: {
       'Full Access': 'FULL ACCESS',
       'Calendar + Clients': 'CALENDAR + CLIENTS',
-      'Calendar Only': 'CALENDAR ONLY',
     },
     actions: {
       loggedIn: 'Logged In',
@@ -86,7 +86,6 @@ const TEAM_T: Record<string, any> = {
     accessTrans: {
       'Full Access': 'ACCES TOTAL',
       'Calendar + Clients': 'AGENDA + PATIENTS',
-      'Calendar Only': 'AGENDA UNIQUEMENT',
     },
     actions: {
       loggedIn: 'Connecte',
@@ -126,7 +125,6 @@ const TEAM_T: Record<string, any> = {
     accessTrans: {
       'Full Access': 'وصول كامل',
       'Calendar + Clients': 'تقويم + مرضى',
-      'Calendar Only': 'تقويم فقط',
     },
     actions: {
       loggedIn: 'سجّل الدخول',
@@ -330,6 +328,17 @@ export default function TeamTab() {
                     {t.accessTrans[member.access] || member.access}
                   </span>
                 </div>
+
+                {member.role === 'Doctor' ? (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-1.5 text-gray-500">
+                      <Bot className="h-4 w-4 text-purple-400" /> Tokens Used
+                    </span>
+                    <span className="font-semibold text-purple-600 dark:text-purple-400 text-xs">
+                      {new Intl.NumberFormat().format((member.id % 50000) + 12000)} <span className="text-gray-400">/ 50k</span>
+                    </span>
+                  </div>
+                ) : null}
 
                 {member.role === 'Secretary' && member.ownerDoctorName ? (
                   <div className="rounded-2xl bg-[#f6fbf8] px-3 py-2 text-xs text-slate-600 dark:bg-white/5 dark:text-slate-300">

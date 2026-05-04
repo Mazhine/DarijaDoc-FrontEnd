@@ -1,5 +1,5 @@
 export type TeamRole = 'Admin' | 'Doctor' | 'Secretary';
-export type TeamAccess = 'Full Access' | 'Calendar + Clients' | 'Calendar Only';
+export type TeamAccess = 'Full Access' | 'Calendar + Clients';
 
 export type TeamMember = {
   id: number;
@@ -59,7 +59,7 @@ export const defaultTeam: TeamMember[] = [
   },
 ];
 
-const TEAM_STORAGE_KEY = 'clinicTeam';
+const TEAM_STORAGE_KEY = 'clinicTeamV2';
 
 function dedupeTeam(rawTeam: TeamMember[]) {
   const byEmail = new Map<string, TeamMember>();

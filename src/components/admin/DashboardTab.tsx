@@ -1,9 +1,9 @@
-﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
-import { Users, Calendar, TrendingUp, Activity, CheckCircle2, Clock, Phone, Shield, BarChart2, Stethoscope, KeyRound, CreditCard } from "lucide-react";
+import { Users, Calendar, TrendingUp, Activity, CheckCircle2, Clock, Phone, Shield, BarChart2, Stethoscope, KeyRound, CreditCard, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 import { getSeededTeam, type TeamMember } from "@/src/lib/team";
 
@@ -93,6 +93,15 @@ export default function DashboardTab() {
     const currentLocale = pathname?.split('/')[1] || 'en';
     const t = DASHBOARD_T[currentLocale] || DASHBOARD_T['en'];
     const isArabic = currentLocale === 'ar';
+    const [revealedPasswords, setRevealedPasswords] = useState<Record<number, boolean>>({});
+
+    const togglePassword = (id: number) => {
+        setRevealedPasswords((prev) => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
+
     const currentRole = typeof window !== 'undefined' ? sessionStorage.getItem('adminRole') || 'Admin' : 'Admin';
     const adminCopy = {
         title: currentLocale === 'fr' ? 'Centre de pilotage admin' : isArabic ? 'مركز تحكم الادمن' : 'Admin Control Center',
@@ -116,6 +125,7 @@ export default function DashboardTab() {
         startDate: currentLocale === 'fr' ? 'Date' : isArabic ? 'التاريخ' : 'Start Date',
         actions: currentLocale === 'fr' ? 'Actions' : isArabic ? 'الإجراءات' : 'Actions',
         view: currentLocale === 'fr' ? 'Voir' : isArabic ? 'عرض' : 'View',
+        status: currentLocale === 'fr' ? 'Statut' : isArabic ? 'الحالة' : 'Status',
     };
     const priorityLabels: Record<string, string> = {
         High: currentLocale === 'fr' ? 'Haute' : isArabic ? 'مرتفعة' : 'High',
@@ -327,16 +337,27 @@ export default function DashboardTab() {
                             <Stethoscope className="h-5 w-5 text-[#12695b]" />
                             <h3 className="text-lg font-bold text-slate-950 dark:text-white">{adminCopy.doctorsAndSecretaries}</h3>
                         </div>
-                        <div className="space-y-4">
-                            {adminDoctors.map((doctor) => {
-                                const doctorSecretaries = adminSecretaries.filter((member) => member.ownerDoctorEmail?.toLowerCase() === doctor.email.toLowerCase());
-                                return (
-                                    <div key={doctor.id} className="rounded-[24px] border border-slate-200 bg-[linear-gradient(135deg,rgba(248,250,252,0.95),rgba(239,248,245,0.85))] p-5 dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(255,255,255,0.04),rgba(159,231,212,0.05))]">
-                                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                                            <div>
-                                                <div className="flex items-center gap-2">
-                                                    <h4 className="text-lg font-bold text-slate-950 dark:text-white">{doctor.name}</h4>
-                                                    <span className={`rounded-full px-3 py-1 text-xs font-bold ${
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-separate border-spacing-0">
+                                <thead>
+                                    <tr className="border-b border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 text-sm">
+                                        <th className="pb-3 font-medium">{adminCopy.name}</th>
+                                        <th className="pb-3 font-medium">{adminCopy.status}</th>
+                                        <th className="pb-3 font-medium">{adminCopy.secretaries}</th>
+                                        <th className="pb-3 font-medium">{adminCopy.credentials}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {adminDoctors.map((doctor) => {
+                                        const doctorSecretaries = adminSecretaries.filter((member) => member.ownerDoctorEmail?.toLowerCase() === doctor.email.toLowerCase());
+                                        return (
+                                            <tr key={doctor.id} className="group hover:bg-[#eff8f5]/60 dark:hover:bg-white/5 transition-colors duration-200">
+                                                <td className="py-4 px-2 border-b border-gray-100 group-last:border-0 first:rounded-l-2xl dark:border-gray-800/50">
+                                                    <div className="font-semibold text-gray-900 dark:text-white">{doctor.name}</div>
+                                                    <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5"><Phone className="h-3 w-3" /> {doctor.email}</div>
+                                                </td>
+                                                <td className="py-4 border-b border-gray-100 group-last:border-0 dark:border-gray-800/50">
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                                                         doctor.subscriptionStatus === 'Past Due'
                                                             ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
                                                             : doctor.subscriptionStatus === 'Trial'
@@ -345,43 +366,31 @@ export default function DashboardTab() {
                                                     }`}>
                                                         {subscriptionLabels[doctor.subscriptionStatus || 'Trial']}
                                                     </span>
-                                                </div>
-                                                <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-500 dark:text-slate-400">
-                                                    <span className="inline-flex items-center gap-1"><Phone className="h-4 w-4" /> {doctor.email}</span>
-                                                    <span className="inline-flex items-center gap-1"><Shield className="h-4 w-4" /> {doctor.access}</span>
-                                                    <span className="inline-flex items-center gap-1"><KeyRound className="h-4 w-4" /> {doctor.password}</span>
-                                                </div>
-                                            </div>
-                                            <div className="rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-sm dark:border-white/10 dark:bg-[#08111d] dark:text-slate-300">
-                                                {doctorSecretaries.length} {adminCopy.attachedSecretaries}
-                                            </div>
-                                        </div>
-                                        <div className="mt-4 grid gap-3 md:grid-cols-2">
-                                            {doctorSecretaries.map((secretary) => (
-                                                <div key={secretary.id} className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm dark:border-white/10 dark:bg-[#08111d]">
-                                                    <div className="flex items-center justify-between gap-3">
-                                                        <div>
-                                                            <div className="font-semibold text-slate-950 dark:text-white">{secretary.name}</div>
-                                                            <div className="mt-1 text-sm text-slate-500 dark:text-slate-400">{secretary.email}</div>
-                                                        </div>
-                                                        <span className="rounded-full bg-[#eff8f5] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#12695b] dark:bg-[#9fe7d4]/12 dark:text-[#9fe7d4]">
-                                                            {secretary.access}
+                                                </td>
+                                                <td className="py-4 border-b border-gray-100 group-last:border-0 dark:border-gray-800/50">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{doctorSecretaries.length}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="py-4 px-2 border-b border-gray-100 group-last:border-0 last:rounded-r-2xl dark:border-gray-800/50">
+                                                    <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800/80 px-3 py-1.5 rounded w-fit">
+                                                        <span className="text-xs text-gray-700 dark:text-gray-300 font-mono tracking-wider">
+                                                            {revealedPasswords[doctor.id] ? doctor.password : '••••••••'}
                                                         </span>
+                                                        <button 
+                                                            onClick={() => togglePassword(doctor.id)}
+                                                            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                                                            title={revealedPasswords[doctor.id] ? "Hide password" : "Show password"}
+                                                        >
+                                                            {revealedPasswords[doctor.id] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                                                        </button>
                                                     </div>
-                                                    <div className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-                                                        {adminCopy.credentials}: {secretary.password}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            {doctorSecretaries.length === 0 ? (
-                                                <div className="rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-white/10 dark:text-slate-400">
-                                                    {adminCopy.noSecretary}
-                                                </div>
-                                            ) : null}
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
