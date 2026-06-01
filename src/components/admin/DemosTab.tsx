@@ -4,7 +4,20 @@ import React, { useState } from 'react';
 import { CalendarDays, MapPin, Phone, Mail, Stethoscope, CheckCircle, XCircle } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
-const DEMOS_T: Record<string, any> = {
+type DemoLocaleText = {
+  title: string;
+  subtitle: string;
+  upcoming: string;
+  history: string;
+  markDone: string;
+  markAbandoned: string;
+  statusDone: string;
+  statusAbandoned: string;
+  emptyUpcoming: string;
+  emptyHistory: string;
+};
+
+const DEMOS_T: Record<string, DemoLocaleText> = {
   en: { 
     title: 'Booked Demos', subtitle: 'View all demo requests scheduled by potential clients.',
     upcoming: 'Upcoming', history: 'History',

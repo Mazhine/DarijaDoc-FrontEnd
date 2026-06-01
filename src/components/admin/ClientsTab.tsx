@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Search, Edit2, Trash2, Calendar, UserPlus, X, Activity, FileText, Phone, Clock } from "lucide-react";
+import { Search, Edit2, Trash2, UserPlus, X, Upload, FileSpreadsheet } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { z } from "zod";
 import { logAuditActivity } from "@/src/lib/audit";
+import PatientProfileView from "@/src/components/admin/PatientProfileView";
 import {
   buildSlotsForDay,
   getPatients,
   getScheduleSettings,
   isFutureOrToday,
-  isValidAge,
-  isValidName,
   isValidPhone,
   normalizePatientStatus,
   savePatients,
@@ -210,12 +210,13 @@ export default function ClientsTab() {
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [viewingClient, setViewingClient] = useState<PatientRecord | null>(null);
   const [formData, setFormData] = useState<FormState>(initialForm);
   const [formError, setFormError] = useState("");
 
-  const loadClients = async () => {
+  const loadClients = useCallback(async () => {
     setLoading(true);
     setNotice("");
 
@@ -309,17 +310,33 @@ export default function ClientsTab() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t.apiWarning]);
 
   useEffect(() => {
     loadClients();
-  }, []);
+  }, [loadClients]);
 
   useEffect(() => {
     const handleOpenClient = () => openAddModal();
     window.addEventListener("openClientModal", handleOpenClient);
     return () => window.removeEventListener("openClientModal", handleOpenClient);
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsModalOpen(false);
+        setIsImportModalOpen(false);
+        setViewingClient(null);
+      }
+    };
+
+    if (isModalOpen || isImportModalOpen || viewingClient) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isImportModalOpen, isModalOpen, viewingClient]);
 
   const filteredClients = useMemo(
     () =>
@@ -359,12 +376,24 @@ export default function ClientsTab() {
   };
 
   const validateForm = () => {
-    if (!formData.name.trim()) return t.errorName;
-    if (!isValidName(formData.name)) return t.errorNameFormat || t.errorName;
-    const age = Number(formData.age || 0);
-    if (!isValidAge(age)) return t.errorAge;
-    if (formData.phone && !isValidPhone(formData.phone)) return t.errorPhone;
-    if (formData.date && !isFutureOrToday(formData.date)) return t.errorDate;
+    const schema = z.object({
+      name: z.string().trim().min(1, t.errorName).regex(/^[A-Za-zÀ-ÿ\u0600-\u06FF\s'-]+$/, t.errorNameFormat || t.errorName),
+      age: z.coerce.number().int().min(0, t.errorAge).max(120, t.errorAge),
+      phone: z.string().optional().refine((value) => !value || isValidPhone(value), t.errorPhone),
+      date: z.string().optional().refine((value) => !value || isFutureOrToday(value), t.errorDate),
+    });
+
+    const parsed = schema.safeParse({
+      name: formData.name,
+      age: formData.age || 0,
+      phone: formData.phone,
+      date: formData.date,
+    });
+
+    if (!parsed.success) {
+      return parsed.error.issues[0]?.message || t.errorName;
+    }
+
     if ((Number(formData.amountPaid) || 0) > (Number(formData.totalFee) || 0)) return t.errorMoney;
     if (formData.date && formData.time && getOccupiedTimesForClients(clients, formData.date, editingId ?? undefined).has(formData.time)) return t.errorSlot;
     return "";
@@ -465,25 +494,6 @@ export default function ClientsTab() {
     if (viewingClient?.id === id) setViewingClient(null);
   };
 
-  const handleDeleteHistoryItem = (patientId: number, historyId: string) => {
-    const next = clients.map((client) => {
-      if (client.id !== patientId) return client;
-      const history = uniqueHistory((client.history || []).filter((item) => item.id !== historyId));
-      const nextFuture = history.find((item) => isFutureOrToday(item.date));
-      return {
-        ...client,
-        history,
-        date: nextFuture?.date || "",
-        status: normalizePatientStatus(nextFuture?.date),
-      };
-    });
-
-    setClients(next);
-    savePatients(next);
-    const refreshed = next.find((item) => item.id === patientId) || null;
-    setViewingClient(refreshed);
-  };
-
   const availableTimes = useMemo(() => {
     if (!formData.date) return [];
     const scheduleSlots = buildSlotsForDay(formData.date, getScheduleSettings());
@@ -510,6 +520,10 @@ export default function ClientsTab() {
               className={`w-full rounded-xl border border-slate-200 py-2 outline-none focus:ring-2 focus:ring-[#12695b] dark:border-white/10 dark:bg-[#0d1726] dark:text-white ps-9 pe-4`}
             />
           </div>
+          <button onClick={() => setIsImportModalOpen(true)} className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 dark:border-white/10 dark:bg-white/[0.02] dark:text-slate-300 dark:hover:bg-white/5 sm:flex">
+            <FileSpreadsheet className="h-4 w-4" />
+            Import
+          </button>
           <button onClick={openAddModal} className="flex items-center gap-2 rounded-xl bg-[#12695b] px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#0f5a4e]">
             <UserPlus className="h-4 w-4" />
             {t.addBtn}
@@ -582,59 +596,43 @@ export default function ClientsTab() {
 
       <AnimatePresence>
         {viewingClient ? (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-[#0d1726]">
-              <div className="flex items-start justify-between border-b border-gray-100 bg-[#eff8f5] p-6 dark:border-gray-800 dark:bg-emerald-900/20">
+          <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/50 p-4 backdrop-blur-sm">
+            <div className="mx-auto flex min-h-full max-w-6xl items-center">
+              <PatientProfileView client={viewingClient} onClose={() => setViewingClient(null)} />
+            </div>
+          </div>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isImportModalOpen ? (
+          <div className="fixed inset-0 z-[65] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} className="w-full max-w-md overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-[#0d1726]">
+              <div className="flex items-start justify-between border-b border-slate-100 p-6 dark:border-slate-800">
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{viewingClient.name}</h3>
-                  <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-300">
-                    <span className="flex items-center gap-1.5"><Phone className="h-4 w-4" /> {viewingClient.phone || "-"}</span>
-                    <span className="flex items-center gap-1.5"><Activity className="h-4 w-4" /> {t.viewAge} {viewingClient.age}</span>
-                    <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#12695b] dark:bg-gray-800 dark:text-emerald-300">
-                      {toStatusLabel(viewingClient.status, t)}
-                    </span>
-                  </div>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{currentLocale === 'fr' ? 'Importer des patients' : currentLocale === 'ar' ? 'استيراد المرضى' : 'Import patients'}</h3>
+                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{currentLocale === 'fr' ? 'Importez depuis un fichier Excel ou CSV.' : currentLocale === 'ar' ? 'استورد من ملف Excel أو CSV.' : 'Upload an Excel or CSV file.'}</p>
                 </div>
-                <button onClick={() => setViewingClient(null)} className="rounded-full bg-white/70 p-2 text-gray-500 transition-colors hover:text-gray-900 dark:bg-gray-800/50 dark:hover:text-white">
+                <button onClick={() => setIsImportModalOpen(false)} className="rounded-full bg-slate-50 p-2 text-slate-500 transition-colors hover:text-slate-900 dark:bg-slate-800/50 dark:hover:text-white">
                   <X className="h-5 w-5" />
                 </button>
               </div>
-
-              <div className="space-y-6 overflow-y-auto p-6">
-                <div>
-                  <h4 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-gray-200">
-                    <FileText className="h-4 w-4 text-[#12695b]" /> {t.notes}
-                  </h4>
-                  <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-gray-700 dark:border-yellow-900/30 dark:bg-yellow-900/10 dark:text-gray-300">
-                    {viewingClient.notes || <span className="italic text-gray-400">{t.noNotes}</span>}
+              <div className="p-6">
+                <div className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-emerald-500/30 bg-emerald-50/50 py-10 transition-all hover:bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/5 dark:hover:bg-emerald-500/10">
+                  <div className="mb-4 rounded-full bg-emerald-100 p-4 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
+                    <Upload className="h-8 w-8" />
                   </div>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">{currentLocale === 'fr' ? 'Cliquez pour importer ou glissez le fichier ici' : currentLocale === 'ar' ? 'انقر للاستيراد أو اسحب الملف هنا' : 'Click to import or drop a file here'}</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">CSV, XLSX, XLS</p>
                 </div>
 
-                <div>
-                  <h4 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-gray-200">
-                    <Clock className="h-4 w-4 text-[#12695b]" /> {t.history}
-                  </h4>
-                  <div className="overflow-hidden rounded-xl border border-gray-100 dark:border-gray-800">
-                    {viewingClient.history?.length ? (
-                      <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                        {viewingClient.history.map((item) => (
-                          <div key={item.id} className="flex items-center justify-between gap-3 bg-gray-50 p-4 dark:bg-gray-800/30">
-                            <div>
-                              <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                                {item.type} • {item.date} • {item.time}
-                              </div>
-                              <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">{item.comment || "-"}</div>
-                            </div>
-                            <button onClick={() => handleDeleteHistoryItem(viewingClient.id, item.id)} title={t.deleteVisit} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30">
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="p-6 text-center text-sm text-gray-500">{t.noHistory}</div>
-                    )}
-                  </div>
+                <div className="mt-6 flex justify-end gap-3">
+                  <button onClick={() => setIsImportModalOpen(false)} className="rounded-xl px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5">
+                    {currentLocale === 'fr' ? 'Annuler' : currentLocale === 'ar' ? 'إلغاء' : 'Cancel'}
+                  </button>
+                  <button onClick={() => { setIsImportModalOpen(false); alert(currentLocale === 'fr' ? 'Traitement en cours...' : currentLocale === 'ar' ? 'جارٍ المعالجة...' : 'Processing file...'); }} className="rounded-xl bg-[#12695b] px-4 py-2 text-sm font-bold text-white shadow-md shadow-emerald-900/20 transition-colors hover:bg-[#0f5a4e]">
+                    {currentLocale === 'fr' ? 'Traiter le fichier' : currentLocale === 'ar' ? 'معالجة الملف' : 'Process file'}
+                  </button>
                 </div>
               </div>
             </motion.div>

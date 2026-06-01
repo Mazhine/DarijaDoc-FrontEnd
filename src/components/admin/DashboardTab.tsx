@@ -207,6 +207,9 @@ export default function DashboardTab() {
   if (role === 'Doctor') {
     const copy = baseCopy.doctor;
     const followUps = patients.filter((patient) => patient.status === 'follow-up').length;
+    const outstandingBalance = patients.reduce((sum, patient) => sum + Math.max(0, (patient.totalFee || 0) - (patient.amountPaid || 0)), 0);
+    const financeLabel = locale === 'fr' ? 'Finances' : locale === 'ar' ? 'المالية' : 'Finances';
+    const openFinance = locale === 'fr' ? 'Ouvrir les finances' : locale === 'ar' ? 'فتح المالية' : 'Open finances';
 
     return (
       <div className="space-y-8">
@@ -215,10 +218,11 @@ export default function DashboardTab() {
           <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-500 dark:text-slate-400">{copy.subtitle}</p>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-4">
           <MetricCard label={copy.patients} value={String(patients.length)} note={copy.openPatients} icon={Users} onClick={() => navigateTo({ tab: 'clients' })} />
           <MetricCard label={copy.employees} value={String(ownEmployees.length)} note={copy.openTeam} icon={UserCog} onClick={() => navigateTo({ tab: 'team' })} />
           <MetricCard label={copy.followUps} value={String(followUps)} note={copy.openCalendar} icon={CalendarDays} onClick={() => navigateTo({ tab: 'calendar' })} />
+          <MetricCard label={financeLabel} value={`${outstandingBalance.toLocaleString()} MAD`} note={openFinance} icon={CreditCard} onClick={() => navigateTo({ tab: 'finances' })} />
         </div>
 
         <div className="premium-panel rounded-[30px] p-6">

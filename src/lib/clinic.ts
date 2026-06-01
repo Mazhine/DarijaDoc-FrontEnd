@@ -13,6 +13,7 @@ export type PatientRecord = {
   id: number;
   name: string;
   age: number;
+  gender?: string;
   malade: string;
   phone: string;
   status: PatientStatus;
@@ -20,6 +21,10 @@ export type PatientRecord = {
   notes: string;
   totalFee: number;
   amountPaid: number;
+  bloodGroup?: string;
+  insurance?: string;
+  chronicDiseases?: string[];
+  allergies?: string[];
   history: AppointmentHistoryItem[];
 };
 

@@ -1,10 +1,27 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Star, MessageSquare, Bot, User } from 'lucide-react';
+import { Star, Bot, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
-const REVIEWS_T: Record<string, any> = {
+type ReviewLocaleText = {
+  title: string;
+  subtitle: string;
+  doctorReviews: string;
+  appReviews: string;
+};
+
+type ReviewItem = {
+  id: number;
+  author: string;
+  role: string;
+  rating: number;
+  date: string;
+  text: string;
+  target?: string;
+};
+
+const REVIEWS_T: Record<string, ReviewLocaleText> = {
   en: { 
     title: 'Reviews & Feedback', subtitle: 'View what users and doctors are saying about the platform.',
     doctorReviews: 'Doctor Reviews', appReviews: 'App & Bot Feedback'
@@ -19,12 +36,12 @@ const REVIEWS_T: Record<string, any> = {
   },
 };
 
-const mockDoctorReviews = [
+const mockDoctorReviews: ReviewItem[] = [
   { id: 2, author: 'Youssef Fassi', target: 'Dr. Amine Alami', role: 'Patient', rating: 4, date: '2026-04-28', text: 'Très pratique pour prendre rendez-vous rapidement. Le rappel sur WhatsApp est un vrai plus.' },
   { id: 4, author: 'Fatima Zahra', target: 'Dr. Karim Tazi', role: 'Patient', rating: 5, date: '2026-04-15', text: 'Excellent médecin, ponctuel et très à l\'écoute. La prise de RDV a été très fluide.' },
 ];
 
-const mockAppReviews = [
+const mockAppReviews: ReviewItem[] = [
   { id: 1, author: 'Dr. Amine Alami', role: 'Doctor', rating: 5, date: '2026-05-01', text: 'This platform has transformed how I manage my appointments. The WhatsApp integration is flawless.' },
   { id: 3, author: 'Sara (Secretary)', role: 'Secretary', rating: 5, date: '2026-04-20', text: 'Je gagne un temps fou tous les jours. L\'interface est claire et l\'agenda très lisible.' },
 ];
@@ -36,7 +53,7 @@ export default function ReviewsTab() {
 
   const [activeView, setActiveView] = useState<'doctors' | 'app'>('doctors');
 
-  const renderReviews = (reviews: any[]) => (
+  const renderReviews = (reviews: ReviewItem[]) => (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-6">
       {reviews.map((review) => (
         <div key={review.id} className="premium-panel rounded-[28px] p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col h-full">
@@ -56,7 +73,7 @@ export default function ReviewsTab() {
               ))}
             </div>
           </div>
-          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">"{review.text}"</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">&quot;{review.text}&quot;</p>
         </div>
       ))}
     </div>

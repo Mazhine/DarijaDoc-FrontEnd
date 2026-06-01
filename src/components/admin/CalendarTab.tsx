@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   AlertOctagon,
@@ -34,7 +33,66 @@ import {
   type ScheduleSettings,
 } from "@/src/lib/clinic";
 
-const CALENDAR_T: Record<string, any> = {
+type CalendarLocaleText = {
+  title: string;
+  subtitle: string;
+  vacation: string;
+  unavailable: string;
+  today: string;
+  newAppt: string;
+  loading: string;
+  events: string;
+  allDay: string;
+  time: string;
+  appointments: string;
+  fullDayBlocked: string;
+  addBooking: string;
+  newConsultation: string;
+  patientName: string;
+  hour: string;
+  type: string;
+  cancel: string;
+  save: string;
+  scheduleSettings: string;
+  openingTime: string;
+  closingTime: string;
+  breakStart: string;
+  breakEnd: string;
+  slotDuration: string;
+  offDays: string;
+  halfDays: string;
+  saveClose: string;
+  newBlock: string;
+  reason: string;
+  startDate: string;
+  endDate: string;
+  blockSchedule: string;
+  vacationReason: string;
+  unavailReason: string;
+  deleteConfirm: string;
+  comment: string;
+  commentHint: string;
+  slot: string;
+  settingsSaved: string;
+  noPast: string;
+  googleWarning: string;
+  dateJump: string;
+  overview: string;
+  week: string;
+  twoWeeks: string;
+  threeWeeks: string;
+  month: string;
+  booked: string;
+  available: string;
+  blocked: string;
+  confirmed: string;
+  confirmedHint: string;
+  noSlots: string;
+  slotTaken: string;
+  utilization: string;
+};
+
+const CALENDAR_T: Record<string, CalendarLocaleText> = {
   en: {
     title: "Calendar",
     subtitle: "Manage a realistic clinic schedule with 30-minute appointments.",
@@ -225,7 +283,24 @@ type CalendarEvent = {
   description?: string;
 };
 
-const rangeOptions: Array<{ id: RangeView; labelKey: string }> = [
+type RangeDayPreviewItem = {
+  id: string;
+  time: string;
+  type: string;
+  date: string;
+  patientName: string;
+};
+
+type RangeDay = {
+  date: Date;
+  dateKey: string;
+  slotsCount: number;
+  bookedCount: number;
+  blocked: boolean;
+  preview: RangeDayPreviewItem[];
+};
+
+const rangeOptions: Array<{ id: RangeView; labelKey: keyof CalendarLocaleText }> = [
   { id: "day", labelKey: "overview" },
   { id: "week", labelKey: "week" },
   { id: "2weeks", labelKey: "twoWeeks" },
@@ -309,10 +384,10 @@ export default function CalendarTab() {
 
   const selectedDateKey = formatDateKey(selectedDate);
   const timeSlots = useMemo(() => buildSlotsForDay(selectedDateKey, settings), [selectedDateKey, settings]);
-  const occupiedTimes = useMemo(() => getOccupiedTimes(selectedDateKey), [selectedDateKey, appointments]);
+  const occupiedTimes = useMemo(() => getOccupiedTimes(selectedDateKey), [selectedDateKey]);
   const availableBookingSlots = useMemo(() => timeSlots.filter((slot) => !occupiedTimes.has(slot)), [occupiedTimes, timeSlots]);
 
-  const hydrateFromLocalPatients = () => {
+  const hydrateFromLocalPatients = useCallback(() => {
     const localEvents = getPatients()
       .flatMap((patient) =>
         (patient.history || []).map((item) => ({
@@ -328,9 +403,9 @@ export default function CalendarTab() {
       .filter((event) => event.date === selectedDateKey);
 
     setAppointments(localEvents);
-  };
+  }, [selectedDateKey, settings.slotDurationMinutes]);
 
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     setLoading(true);
     setErrorMsg(null);
 
@@ -342,18 +417,18 @@ export default function CalendarTab() {
       }
       setAppointments(data.events || []);
       setInfoMessage("");
-    } catch (error: any) {
+    } catch (error: unknown) {
       hydrateFromLocalPatients();
       setErrorMsg(t.googleWarning);
-      setInfoMessage(error?.message || "");
+      setInfoMessage(error instanceof Error ? error.message : "");
     } finally {
       setLoading(false);
     }
-  };
+  }, [hydrateFromLocalPatients, selectedDateKey, t.googleWarning]);
 
   useEffect(() => {
-    fetchEvents();
-  }, [selectedDateKey]);
+    void fetchEvents();
+  }, [fetchEvents]);
 
   const isPastSelectedDate = selectedDateKey < formatDateKey(new Date());
 
@@ -580,7 +655,7 @@ export default function CalendarTab() {
     setIsSettingsModalOpen(false);
   };
 
-  const rangeDays = useMemo(() => {
+  const rangeDays = useMemo<RangeDay[]>(() => {
     const length = getRangeLength(rangeView);
     return Array.from({ length }, (_, index) => {
       const date = addDays(selectedDate, index);
@@ -930,7 +1005,7 @@ export default function CalendarTab() {
               <div className="mt-4 space-y-2">
                 {day.preview.length ? day.preview.map((item) => (
                   <div key={item.id} className="rounded-2xl bg-slate-50 px-3 py-3 text-sm dark:bg-white/5">
-                    <div className="font-semibold text-slate-900 dark:text-white">{(item as any).patientName}</div>
+                    <div className="font-semibold text-slate-900 dark:text-white">{item.patientName}</div>
                     <div className="mt-1 text-slate-500 dark:text-slate-400">{item.time} • {item.type}</div>
                   </div>
                 )) : (

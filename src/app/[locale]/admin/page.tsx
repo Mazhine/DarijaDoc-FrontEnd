@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import {
   CalendarDays,
   CheckCircle2,
@@ -26,6 +26,7 @@ import ReviewsTab from '@/src/components/admin/ReviewsTab';
 import DemosTab from '@/src/components/admin/DemosTab';
 import SubscriptionsTab from '@/src/components/admin/SubscriptionsTab';
 import LogsTab from '@/src/components/admin/LogsTab';
+import FinancesTab from '@/src/components/admin/FinancesTab';
 import { logAuditActivity } from '@/src/lib/audit';
 import { clearClientSession, hasClientSession, setClientSession } from '@/src/lib/auth';
 import { ensureTeamSecurity, getSeededTeam, type TeamMember, updateTeamMemberCredentials, verifyPassword } from '@/src/lib/team';
@@ -198,7 +199,6 @@ function LocaleMenu({
 
 export default function AdminDashboard() {
   const pathname = usePathname();
-  const router = useRouter();
   const locale = (pathname?.split('/')[1] || 'en') as keyof typeof UI;
   const copy = UI[locale] || UI.en;
   const isRtl = locale === 'ar';
@@ -255,9 +255,9 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (isHydrated && isAuthenticated && pathname?.includes('/auth')) {
-      router.replace(`/${locale}/admin`);
+      window.location.replace(`/${locale}/admin`);
     }
-  }, [isAuthenticated, isHydrated, locale, pathname, router]);
+  }, [isAuthenticated, isHydrated, locale, pathname]);
 
   useEffect(() => {
     const handleNavigate = (event: Event) => {
@@ -304,7 +304,7 @@ export default function AdminDashboard() {
       ownerDoctorName,
     });
     if (pathname?.includes('/auth')) {
-      router.replace(`/${locale}/admin`);
+      window.location.replace(`/${locale}/admin`);
     }
 
     setTimeout(() => logAuditActivity('loggedIn', 'System', 'system'), 100);
@@ -434,7 +434,8 @@ export default function AdminDashboard() {
     if (userRole === 'Doctor') {
       return sourceTabs
         .filter((tab) => tab.id === 'dashboard' || tab.id === 'calendar' || tab.id === 'clients' || tab.id === 'team')
-        .map((tab) => (tab.id === 'team' ? { ...tab, label: doctorTeamLabel } : tab));
+        .map((tab) => (tab.id === 'team' ? { ...tab, label: doctorTeamLabel } : tab))
+        .concat([{ id: 'finances', label: locale === 'fr' ? 'Finances' : locale === 'ar' ? 'المالية' : 'Finances', icon: CreditCard }]);
     }
 
     return sourceTabs.filter((tab) => tab.id === 'calendar' || tab.id === 'clients');
@@ -450,6 +451,8 @@ export default function AdminDashboard() {
         return <CalendarTab />;
       case 'team':
         return userRole === 'Admin' || userRole === 'Doctor' ? <TeamTab /> : <DashboardTab />;
+      case 'finances':
+        return userRole === 'Doctor' ? <FinancesTab /> : <DashboardTab />;
       case 'subscriptions':
         return userRole === 'Admin' ? <SubscriptionsTab /> : <DashboardTab />;
       case 'logs':
